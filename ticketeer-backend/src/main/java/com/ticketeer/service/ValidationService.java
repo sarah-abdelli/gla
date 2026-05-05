@@ -2,21 +2,29 @@ package com.ticketeer.service;
 
 import com.ticketeer.entity.*;
 import com.ticketeer.enums.ResultatValidation;
-import com.ticketeer.repository.*;
+import com.ticketeer.repository.BilletRepository;
+import com.ticketeer.repository.ValidationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.*;
 import java.util.List;
 
 @Service
 public class ValidationService {
 
-    @Autowired private BilletRepository billetRepository;
-    @Autowired private ValidationRepository validationRepository;
-    @Autowired private TokenService tokenService;
+    @Autowired
+    private BilletRepository billetRepository;
+
+    @Autowired
+    private ValidationRepository validationRepository;
+
+    @Autowired
+    private TokenService tokenService;
 
     public Validation validerBillet(String uuid, String tokenValeur,
-                                     String numeroTrain, LocalDate date, LocalTime heure) {
+                                    String numeroTrain, LocalDate date, LocalTime heure) {
+
         AgentControle agent = tokenService.getAgentParToken(tokenValeur);
         if (agent == null) {
             return enregistrerRefus(uuid, null, "Token invalide ou absent");
@@ -31,15 +39,52 @@ public class ValidationService {
             return enregistrerRefus(uuid, agent, "Billet déjà utilisé ou invalide");
         }
 
-        billet.marquerUtilise();
-        billetRepository.save(billet);
+        if (!verifierSegment(billet, numeroTrain)) {
+            return enregistrerRefus(uuid, agent, "Hors itinéraire - mauvais train");
+        }
+
+        if (!verifierContexte(billet, numeroTrain, date, heure)) {
+            return enregistrerRefus(uuid, agent, "Mauvaise date ou heure");
+        }
+
+        if (verifierDernierSegment(billet, numeroTrain)) {
+            billet.marquerUtilise();
+            billetRepository.save(billet);
+        }
 
         Validation validation = new Validation();
         validation.setDateHeure(LocalDateTime.now());
         validation.setResultat(ResultatValidation.ACCEPTEE);
         validation.setBillet(billet);
         validation.setAgent(agent);
+
         return validationRepository.save(validation);
+    }
+
+    private boolean verifierSegment(Billet billet, String numeroTrain) {
+        return billet.getItineraire().getSegments().stream()
+                .anyMatch(s -> s.getTrain().getNumero().equals(numeroTrain));
+    }
+
+    private boolean verifierContexte(Billet billet, String numeroTrain,
+                                     LocalDate date, LocalTime heure) {
+        return billet.getItineraire().getSegments().stream()
+                .filter(s -> s.getTrain().getNumero().equals(numeroTrain))
+                .anyMatch(s ->
+                        s.getDateDepart().equals(date)
+                                && s.estDansLaBonnePlage(heure)
+                );
+    }
+
+    private boolean verifierDernierSegment(Billet billet, String numeroTrain) {
+        List<SegmentTrajet> segments = billet.getItineraire().getSegments();
+
+        if (segments == null || segments.isEmpty()) {
+            return false;
+        }
+
+        SegmentTrajet dernier = segments.get(segments.size() - 1);
+        return dernier.getTrain().getNumero().equals(numeroTrain);
     }
 
     private Validation enregistrerRefus(String uuid, AgentControle agent, String motif) {
@@ -48,9 +93,11 @@ public class ValidationService {
         v.setResultat(ResultatValidation.REFUSEE);
         v.setMotifRefus(motif);
         v.setAgent(agent);
+
         if (uuid != null) {
             billetRepository.findByUuid(uuid).ifPresent(v::setBillet);
         }
+
         return validationRepository.save(v);
     }
 
