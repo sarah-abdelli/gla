@@ -23,8 +23,7 @@ public class BilletService {
                 .orElseThrow(() -> new RuntimeException("Itinéraire introuvable"));
 
         Billet billet = new Billet();
-        billet.setUuid(Billet.genererUUID());
-        billet.setDateCreation(LocalDateTime.now());
+        billet.setUuid(java.util.UUID.randomUUID().toString());        billet.setDateCreation(LocalDateTime.now());
         billet.setEtat(EtatBillet.VALIDE);
         billet.setVoyageur(voyageur);
         billet.setItineraire(itineraire);
