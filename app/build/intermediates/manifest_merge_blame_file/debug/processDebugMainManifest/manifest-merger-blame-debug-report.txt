@@ -1,0 +1,206 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.ticketeer.agent"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Permissions nécessaires -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:5:5-67
+12-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:5:22-64
+13    <uses-permission android:name="android.permission.CAMERA" />
+13-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:6:5-65
+13-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:6:22-62
+14
+15    <uses-feature
+15-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:7:5-84
+16        android:name="android.hardware.camera"
+16-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:7:19-57
+17        android:required="true" />
+17-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:7:58-81
+18    <uses-feature
+18-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:28:5-30:36
+19        android:name="android.hardware.camera.front"
+19-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:29:9-53
+20        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+20-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:30:9-33
+21    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+22    <uses-feature
+22-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:33:5-35:36
+23        android:name="android.hardware.camera.autofocus"
+23-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:34:9-57
+24        android:required="false" />
+24-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:35:9-33
+25    <uses-feature
+25-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:36:5-38:36
+26        android:name="android.hardware.camera.flash"
+26-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:37:9-53
+27        android:required="false" />
+27-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:38:9-33
+28    <uses-feature
+28-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:39:5-41:36
+29        android:name="android.hardware.screen.landscape"
+29-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:40:9-57
+30        android:required="false" />
+30-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:41:9-33
+31    <uses-feature
+31-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:42:5-44:36
+32        android:name="android.hardware.wifi"
+32-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:43:9-45
+33        android:required="false" />
+33-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
+34
+35    <permission
+35-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+36        android:name="com.ticketeer.agent.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+36-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+37        android:protectionLevel="signature" />
+37-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+38
+39    <uses-permission android:name="com.ticketeer.agent.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+39-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+39-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+40
+41    <application
+41-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:9:5-37:19
+42        android:allowBackup="true"
+42-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:10:9-35
+43        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+43-->[androidx.core:core:1.9.0] C:\Users\sarah\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+44        android:debuggable="true"
+45        android:extractNativeLibs="false"
+46        android:icon="@android:drawable/ic_menu_compass"
+46-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:11:9-57
+47        android:label="Ticketeer Agent"
+47-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:12:9-40
+48        android:roundIcon="@android:drawable/ic_menu_compass"
+48-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:13:9-62
+49        android:supportsRtl="true"
+49-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:14:9-35
+50        android:testOnly="true"
+51        android:theme="@style/Theme.TicketeerAgent"
+51-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:15:9-52
+52        android:usesCleartextTraffic="true" >
+52-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:16:9-44
+53
+54        <!-- LoginActivity — écran de démarrage -->
+55        <activity
+55-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:19:9-26:20
+56            android:name="com.ticketeer.agent.activity.LoginActivity"
+56-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:20:13-51
+57            android:exported="true" >
+57-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:21:13-36
+58            <intent-filter>
+58-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:22:13-25:29
+59                <action android:name="android.intent.action.MAIN" />
+59-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:23:17-69
+59-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:23:25-66
+60
+61                <category android:name="android.intent.category.LAUNCHER" />
+61-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:24:17-77
+61-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:24:27-74
+62            </intent-filter>
+63        </activity>
+64
+65        <!-- ScanActivity — scanner QR Code -->
+66        <activity
+66-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:29:9-31:15
+67            android:name="com.ticketeer.agent.activity.ScanActivity"
+67-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:29:19-56
+68            android:exported="false" />
+68-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:30:13-37
+69
+70        <!-- ResultActivity — affichage résultat validation -->
+71        <activity
+71-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:34:9-35:39
+72            android:name="com.ticketeer.agent.activity.ResultActivity"
+72-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:34:19-58
+73            android:exported="false" />
+73-->C:\Users\sarah\Downloads\ticketeer-android\ticketeer-android\app\src\main\AndroidManifest.xml:35:13-37
+74        <activity
+74-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
+75            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+75-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
+76            android:clearTaskOnLaunch="true"
+76-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
+77            android:screenOrientation="sensorLandscape"
+77-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
+78            android:stateNotNeeded="true"
+78-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
+79            android:theme="@style/zxing_CaptureTheme"
+79-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
+80            android:windowSoftInputMode="stateAlwaysHidden" />
+80-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\784103a80b8bfc22377175428c72406b\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
+81
+82        <provider
+82-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+83            android:name="androidx.startup.InitializationProvider"
+83-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+84            android:authorities="com.ticketeer.agent.androidx-startup"
+84-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+85            android:exported="false" >
+85-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+86            <meta-data
+86-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+87                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+87-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+88                android:value="androidx.startup" />
+88-->[androidx.emoji2:emoji2:1.2.0] C:\Users\sarah\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+89            <meta-data
+89-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\sarah\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+90                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+90-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\sarah\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+91                android:value="androidx.startup" />
+91-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\sarah\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+92            <meta-data
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+93                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+94                android:value="androidx.startup" />
+94-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+95        </provider>
+96
+97        <receiver
+97-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+98            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+99            android:directBootAware="false"
+99-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+100            android:enabled="true"
+100-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+101            android:exported="true"
+101-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+102            android:permission="android.permission.DUMP" >
+102-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+103            <intent-filter>
+103-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+104                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+105            </intent-filter>
+106            <intent-filter>
+106-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+107                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+107-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+107-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+108            </intent-filter>
+109            <intent-filter>
+109-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+110                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+111            </intent-filter>
+112            <intent-filter>
+112-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+113                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\sarah\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+114            </intent-filter>
+115        </receiver>
+116    </application>
+117
+118</manifest>
