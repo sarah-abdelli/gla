@@ -16,42 +16,59 @@ public class ValidationService {
     @Autowired private TokenService tokenService;
 
     public Validation validerBillet(String uuid, String tokenValeur,
-                                     String numeroTrain, LocalDate date, LocalTime heure) {
+                                    String numeroTrain, LocalDate date, LocalTime heure) {
+
+        // 1. Vérifier le token de l'agent
         AgentControle agent = tokenService.getAgentParToken(tokenValeur);
         if (agent == null) {
-            return enregistrerRefus(uuid, null, "Token invalide ou absent");
+            Validation v = new Validation();
+            v.setDateHeure(LocalDateTime.now());
+            v.setResultat(ResultatValidation.REFUSEE);
+            v.setMotifRefus("Token invalide ou absent");
+            return v; // retourne sans sauvegarder
         }
 
+        // 2. Vérifier que le billet existe
         Billet billet = billetRepository.findByUuid(uuid).orElse(null);
         if (billet == null) {
-            return enregistrerRefus(uuid, agent, "UUID inconnu");
+            Validation v = new Validation();
+            v.setDateHeure(LocalDateTime.now());
+            v.setResultat(ResultatValidation.REFUSEE);
+            v.setMotifRefus("UUID inconnu");
+            v.setAgent(agent);
+            return v; // retourne sans sauvegarder
         }
 
+        // 3. Vérifier l'état du billet
         if (!billet.estValide()) {
-            return enregistrerRefus(uuid, agent, "Billet déjà utilisé ou invalide");
+            Validation v = new Validation();
+            v.setDateHeure(LocalDateTime.now());
+            v.setResultat(ResultatValidation.REFUSEE);
+            v.setMotifRefus("Billet déjà utilisé ou invalide");
+            v.setBillet(billet);
+            v.setAgent(agent);
+            try {
+                return validationRepository.save(v);
+            } catch (Exception e) {
+                return v;
+            }
         }
 
+        // 4. Marquer le billet utilisé
         billet.marquerUtilise();
         billetRepository.save(billet);
 
+        // 5. Enregistrer la validation ACCEPTEE
         Validation validation = new Validation();
         validation.setDateHeure(LocalDateTime.now());
         validation.setResultat(ResultatValidation.ACCEPTEE);
         validation.setBillet(billet);
         validation.setAgent(agent);
-        return validationRepository.save(validation);
-    }
-
-    private Validation enregistrerRefus(String uuid, AgentControle agent, String motif) {
-        Validation v = new Validation();
-        v.setDateHeure(LocalDateTime.now());
-        v.setResultat(ResultatValidation.REFUSEE);
-        v.setMotifRefus(motif);
-        v.setAgent(agent);
-        if (uuid != null) {
-            billetRepository.findByUuid(uuid).ifPresent(v::setBillet);
+        try {
+            return validationRepository.save(validation);
+        } catch (Exception e) {
+            return validation;
         }
-        return validationRepository.save(v);
     }
 
     public List<Validation> getHistorique(String uuid) {
