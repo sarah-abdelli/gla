@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "agents_controle")
+@Table(name = "agents_controle", indexes = {
+        @Index(name = "idx_agent_login", columnList = "login", unique = true)
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@ToString(exclude = "tokens")
 public class AgentControle {
 
     @Id
@@ -21,9 +24,20 @@ public class AgentControle {
     @Column(unique = true, nullable = false)
     private String login;
 
+    /** Mot de passe hashé (BCrypt) — jamais en clair */
     @Column(nullable = false)
     private String motDePasse;
 
-    @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens = new ArrayList<>();
+
+    public AgentControle(String nom, String login, String motDePasse) {
+        this.nom = nom;
+        this.login = login;
+        this.motDePasse = motDePasse;
+    }
+
+    public boolean aTokenActif() {
+        return tokens.stream().anyMatch(Token::estValide);
+    }
 }

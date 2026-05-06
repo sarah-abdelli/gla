@@ -9,9 +9,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "billets")
+@Table(name = "billets", indexes = {
+        @Index(name = "idx_billet_uuid", columnList = "uuid"),
+        @Index(name = "idx_billet_etat", columnList = "etat"),
+        @Index(name = "idx_billet_voyageur", columnList = "voyageur_id")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@ToString(exclude = "validations")
 public class Billet {
 
     @Id
@@ -24,20 +29,31 @@ public class Billet {
     @Column(nullable = false)
     private EtatBillet etat;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "voyageur_id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "voyageur_id", nullable = false)
     private Voyageur voyageur;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "itineraire_id")
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "itineraire_id", nullable = false)
     private Itineraire itineraire;
 
-    @OneToMany(mappedBy = "billet", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "billet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dateHeure DESC")
     private List<Validation> validations = new ArrayList<>();
 
-    // Génère un UUID unique pour le billet
-    public static String genererUUID() {
-        return UUID.randomUUID().toString();
+    /** Crée un nouveau billet VALIDE avec UUID auto-généré */
+    public static Billet creer(Voyageur voyageur, Itineraire itineraire) {
+        Billet b = new Billet();
+        b.uuid = UUID.randomUUID().toString();
+        b.dateCreation = LocalDateTime.now();
+        b.etat = EtatBillet.VALIDE;
+        b.voyageur = voyageur;
+        b.itineraire = itineraire;
+        return b;
+    }
+
+    public String genererQR() {
+        return this.uuid;
     }
 
     public boolean estValide() {
@@ -50,5 +66,9 @@ public class Billet {
 
     public void invalider() {
         this.etat = EtatBillet.INVALIDE;
+    }
+
+    public Validation getDerniereValidation() {
+        return validations.isEmpty() ? null : validations.get(0);
     }
 }
