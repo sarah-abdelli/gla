@@ -6,7 +6,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "validations")
+@Table(name = "validations", indexes = {
+        @Index(name = "idx_validation_billet", columnList = "billet_uuid"),
+        @Index(name = "idx_validation_agent", columnList = "agent_id"),
+        @Index(name = "idx_validation_resultat", columnList = "resultat")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Validation {
@@ -22,14 +26,40 @@ public class Validation {
     @Column(nullable = false)
     private ResultatValidation resultat;
 
+    /** Null si résultat = ACCEPTEE */
     @Column
-    private String motifRefus; // null si ACCEPTEE
+    private String motifRefus;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "billet_uuid")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "billet_uuid", nullable = false)
     private Billet billet;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "agent_id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_id", nullable = false)
     private AgentControle agent;
+
+    /** Factory : crée une validation ACCEPTEE */
+    public static Validation acceptee(Billet billet, AgentControle agent) {
+        Validation v = new Validation();
+        v.dateHeure = LocalDateTime.now();
+        v.resultat = ResultatValidation.ACCEPTEE;
+        v.billet = billet;
+        v.agent = agent;
+        return v;
+    }
+
+    /** Factory : crée une validation REFUSEE avec motif */
+    public static Validation refusee(Billet billet, AgentControle agent, String motif) {
+        Validation v = new Validation();
+        v.dateHeure = LocalDateTime.now();
+        v.resultat = ResultatValidation.REFUSEE;
+        v.motifRefus = motif;
+        v.billet = billet;
+        v.agent = agent;
+        return v;
+    }
+
+    public boolean estAcceptee() {
+        return this.resultat == ResultatValidation.ACCEPTEE;
+    }
 }

@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "voyageurs")
+@Table(name = "voyageurs", indexes = {
+        @Index(name = "idx_voyageur_email", columnList = "email")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@ToString(exclude = "billets")
 public class Voyageur {
 
     @Id
@@ -24,6 +27,18 @@ public class Voyageur {
     @Column(nullable = false)
     private String motDePasse;
 
-    @OneToMany(mappedBy = "voyageur", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "voyageur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Billet> billets = new ArrayList<>();
+
+    public Voyageur(String nom, String email, String motDePasse) {
+        this.nom = nom;
+        this.email = email;
+        this.motDePasse = motDePasse;
+    }
+
+    public long nombreBilletsValides() {
+        return billets.stream()
+                .filter(b -> b.getEtat() != null && b.estValide())
+                .count();
+    }
 }

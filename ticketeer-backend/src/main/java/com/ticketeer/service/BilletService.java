@@ -1,11 +1,9 @@
 package com.ticketeer.service;
 
 import com.ticketeer.entity.*;
-import com.ticketeer.enums.EtatBillet;
 import com.ticketeer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 @Service
 public class BilletService {
@@ -20,13 +18,7 @@ public class BilletService {
         Itineraire itineraire = itineraireRepository.findById(itineraireId)
                 .orElseThrow(() -> new RuntimeException("Itinéraire introuvable"));
 
-        Billet billet = new Billet();
-        billet.setUuid(Billet.genererUUID());
-        billet.setDateCreation(LocalDateTime.now());
-        billet.setEtat(EtatBillet.VALIDE);
-        billet.setVoyageur(voyageur);
-        billet.setItineraire(itineraire);
-
+        Billet billet = Billet.creer(voyageur, itineraire);
         return billetRepository.save(billet);
     }
 

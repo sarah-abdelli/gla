@@ -5,7 +5,10 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tokens")
+@Table(name = "tokens", indexes = {
+        @Index(name = "idx_token_valeur", columnList = "valeur"),
+        @Index(name = "idx_token_agent", columnList = "agent_id")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Token {
@@ -20,8 +23,8 @@ public class Token {
     @Column(nullable = false)
     private LocalDateTime dateExpiration;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "agent_id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_id", nullable = false)
     private AgentControle agent;
 
     public boolean estValide() {
@@ -30,5 +33,11 @@ public class Token {
 
     public boolean estExpire() {
         return !estValide();
+    }
+
+    @Override
+    public String toString() {
+        return "Token[agentId=" + (agent != null ? agent.getId() : "?")
+                + ", expire=" + dateExpiration + "]";
     }
 }
