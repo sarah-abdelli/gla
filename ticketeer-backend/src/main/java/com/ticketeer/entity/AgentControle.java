@@ -1,5 +1,6 @@
 package com.ticketeer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -24,10 +25,11 @@ public class AgentControle {
     @Column(unique = true, nullable = false)
     private String login;
 
-    /** Mot de passe hashé (BCrypt) — jamais en clair */
+    @JsonIgnore
     @Column(nullable = false)
     private String motDePasse;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens = new ArrayList<>();
 

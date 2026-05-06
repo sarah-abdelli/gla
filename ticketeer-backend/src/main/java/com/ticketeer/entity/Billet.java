@@ -1,5 +1,6 @@
 package com.ticketeer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ticketeer.enums.EtatBillet;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,7 @@ public class Billet {
     @Column(nullable = false)
     private EtatBillet etat;
 
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "voyageur_id", nullable = false)
     private Voyageur voyageur;
@@ -37,11 +39,11 @@ public class Billet {
     @JoinColumn(name = "itineraire_id", nullable = false)
     private Itineraire itineraire;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "billet", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("dateHeure DESC")
     private List<Validation> validations = new ArrayList<>();
 
-    /** Crée un nouveau billet VALIDE avec UUID auto-généré */
     public static Billet creer(Voyageur voyageur, Itineraire itineraire) {
         Billet b = new Billet();
         b.uuid = UUID.randomUUID().toString();
@@ -52,22 +54,10 @@ public class Billet {
         return b;
     }
 
-    public String genererQR() {
-        return this.uuid;
-    }
-
-    public boolean estValide() {
-        return this.etat == EtatBillet.VALIDE;
-    }
-
-    public void marquerUtilise() {
-        this.etat = EtatBillet.UTILISE;
-    }
-
-    public void invalider() {
-        this.etat = EtatBillet.INVALIDE;
-    }
-
+    public String genererQR() { return this.uuid; }
+    public boolean estValide() { return this.etat == EtatBillet.VALIDE; }
+    public void marquerUtilise() { this.etat = EtatBillet.UTILISE; }
+    public void invalider() { this.etat = EtatBillet.INVALIDE; }
     public Validation getDerniereValidation() {
         return validations.isEmpty() ? null : validations.get(0);
     }

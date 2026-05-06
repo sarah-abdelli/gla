@@ -23,7 +23,7 @@ public class BilletService {
     }
 
     public Billet getBillet(String uuid) {
-        return billetRepository.findByUuid(uuid)
+        return billetRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("Billet introuvable : " + uuid));
     }
 

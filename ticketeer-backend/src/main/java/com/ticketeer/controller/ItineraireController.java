@@ -18,6 +18,12 @@ public class ItineraireController {
     public ResponseEntity<List<Itineraire>> search(
             @RequestParam String depart,
             @RequestParam String arrivee) {
-        return ResponseEntity.ok(itineraireService.rechercherItineraires(depart, arrivee));
+
+        if (depart == null || arrivee == null || depart.equals(arrivee)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Itineraire> resultats = itineraireService.rechercherItineraires(depart, arrivee);
+        return ResponseEntity.ok(resultats);
     }
 }

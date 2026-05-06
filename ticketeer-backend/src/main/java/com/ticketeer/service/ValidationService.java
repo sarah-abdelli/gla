@@ -29,7 +29,8 @@ public class ValidationService {
         }
 
         // 2. Vérifier que le billet existe
-        Billet billet = billetRepository.findByUuid(uuid).orElse(null);
+        
+        Billet billet = billetRepository.findById(uuid).orElse(null);
         if (billet == null) {
             Validation v = new Validation();
             v.setDateHeure(LocalDateTime.now());
