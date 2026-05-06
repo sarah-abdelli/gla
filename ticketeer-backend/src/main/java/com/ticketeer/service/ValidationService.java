@@ -25,17 +25,14 @@ public class ValidationService {
     public Validation validerBillet(String uuid, String tokenValeur,
                                     String numeroTrain, LocalDate date, LocalTime heure) {
 
-<<<<<<< HEAD
-=======
         // 1. Vérifier le token de l'agent
->>>>>>> origin/feature/entites
         AgentControle agent = tokenService.getAgentParToken(tokenValeur);
         if (agent == null) {
             Validation v = new Validation();
             v.setDateHeure(LocalDateTime.now());
             v.setResultat(ResultatValidation.REFUSEE);
             v.setMotifRefus("Token invalide ou absent");
-            return v; // retourne sans sauvegarder
+            return v;
         }
 
         // 2. Vérifier que le billet existe
@@ -46,7 +43,7 @@ public class ValidationService {
             v.setResultat(ResultatValidation.REFUSEE);
             v.setMotifRefus("UUID inconnu");
             v.setAgent(agent);
-            return v; // retourne sans sauvegarder
+            return v;
         }
 
         // 3. Vérifier l'état du billet
@@ -57,39 +54,31 @@ public class ValidationService {
             v.setMotifRefus("Billet déjà utilisé ou invalide");
             v.setBillet(billet);
             v.setAgent(agent);
-            try {
-                return validationRepository.save(v);
-            } catch (Exception e) {
-                return v;
-            }
+            return validationRepository.save(v);
         }
 
-<<<<<<< HEAD
+        // 4. Vérifier que le train appartient à l'itinéraire
         if (!verifierSegment(billet, numeroTrain)) {
             return enregistrerRefus(uuid, agent, "Hors itinéraire - mauvais train");
         }
 
+        // 5. Vérifier date + heure
         if (!verifierContexte(billet, numeroTrain, date, heure)) {
             return enregistrerRefus(uuid, agent, "Mauvaise date ou heure");
         }
 
+        // 6. Si c'est le dernier segment, marquer le billet utilisé
         if (verifierDernierSegment(billet, numeroTrain)) {
             billet.marquerUtilise();
             billetRepository.save(billet);
         }
-=======
-        // 4. Marquer le billet utilisé
-        billet.marquerUtilise();
-        billetRepository.save(billet);
->>>>>>> origin/feature/entites
 
-        // 5. Enregistrer la validation ACCEPTEE
+        // 7. Enregistrer la validation acceptée
         Validation validation = new Validation();
         validation.setDateHeure(LocalDateTime.now());
         validation.setResultat(ResultatValidation.ACCEPTEE);
         validation.setBillet(billet);
         validation.setAgent(agent);
-<<<<<<< HEAD
 
         return validationRepository.save(validation);
     }
@@ -132,13 +121,6 @@ public class ValidationService {
         }
 
         return validationRepository.save(v);
-=======
-        try {
-            return validationRepository.save(validation);
-        } catch (Exception e) {
-            return validation;
-        }
->>>>>>> origin/feature/entites
     }
 
     public List<Validation> getHistorique(String uuid) {
