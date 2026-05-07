@@ -95,4 +95,9 @@ public class AdminController {
                 adminService.getToutesLesValidations()
         );
     }
+    @DeleteMapping("/villes/{id}")
+    public ResponseEntity<Void> deleteVille(@PathVariable Long id) {
+    adminService.supprimerVille(id);
+    return ResponseEntity.noContent().build();
+    }
 }

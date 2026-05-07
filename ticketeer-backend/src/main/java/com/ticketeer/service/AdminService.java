@@ -71,4 +71,7 @@ public class AdminService {
     public List<Validation> getToutesLesValidations() {
         return validationRepository.findAll();
     }
+    public void supprimerVille(Long id) {
+    villeRepository.deleteById(id);
+    }
 }
