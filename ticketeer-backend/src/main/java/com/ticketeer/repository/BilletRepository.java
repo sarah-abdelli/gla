@@ -4,10 +4,8 @@ import com.ticketeer.entity.Billet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface BilletRepository extends JpaRepository<Billet, String> {
-    Optional<Billet> findByUuid(String uuid);
     List<Billet> findByVoyageurId(Long voyageurId);
 }

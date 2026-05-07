@@ -22,12 +22,12 @@ public class BilletController {
         ));
     }
 
-    @GetMapping("/{uuid}")
+    @GetMapping("/{uuid:.+}")
     public ResponseEntity<Billet> getBillet(@PathVariable String uuid) {
         return ResponseEntity.ok(billetService.getBillet(uuid));
     }
 
-    @GetMapping("/{uuid}/qr")
+    @GetMapping("/{uuid:.+}/qr")
     public ResponseEntity<Map<String, String>> getQR(@PathVariable String uuid) {
         return ResponseEntity.ok(Map.of("uuid", billetService.getQRData(uuid)));
     }

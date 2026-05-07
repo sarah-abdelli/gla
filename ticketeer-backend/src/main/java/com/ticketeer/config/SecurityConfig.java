@@ -18,20 +18,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Endpoints publics (pas besoin de token)
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/itineraires/**").permitAll()
-                .requestMatchers("/api/billets/**").permitAll()
-                // TODO : sécuriser /api/validations et /api/admin avec JWT en phase 2
-                .requestMatchers("/api/validations/**").permitAll()
-                .requestMatchers("/api/admin/**").permitAll()
-                .anyRequest().authenticated()
-            );
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }
@@ -39,7 +32,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Autorise React (localhost:5173) et Android à appeler l'API
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
