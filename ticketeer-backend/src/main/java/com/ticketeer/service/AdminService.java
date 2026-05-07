@@ -52,10 +52,23 @@ public class AdminService {
         return segmentRepository.save(segment);
     }
 
-    public List<Validation> consulterTracabilite(String uuid) {
+        public List<Validation> consulterTracabilite(String uuid) {
         return validationRepository.findByBilletUuid(uuid);
     }
 
-    public List<Ville> getToutesLesVilles() { return villeRepository.findAll(); }
-    public List<Train> getTousLesTrains() { return trainRepository.findAll(); }
+    public List<Ville> getToutesLesVilles() {
+        return villeRepository.findAll();
+    }
+
+    public List<Train> getTousLesTrains() {
+        return trainRepository.findAll();
+    }
+
+    public List<Voyageur> getTousLesVoyageurs() {
+        return voyageurRepository.findAll();
+    }
+
+    public List<Validation> getToutesLesValidations() {
+        return validationRepository.findAll();
+    }
 }
