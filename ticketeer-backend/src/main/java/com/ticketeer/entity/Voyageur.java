@@ -1,6 +1,5 @@
 package com.ticketeer.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ public class Voyageur {
     @Column(nullable = false)
     private String motDePasse;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "voyageur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Billet> billets = new ArrayList<>();
 

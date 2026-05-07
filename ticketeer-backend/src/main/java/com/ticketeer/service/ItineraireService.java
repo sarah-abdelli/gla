@@ -1,39 +1,57 @@
 package com.ticketeer.service;
 
 import com.ticketeer.entity.Itineraire;
+import com.ticketeer.entity.SegmentTrajet;
 import com.ticketeer.repository.ItineraireRepository;
+import com.ticketeer.repository.SegmentTrajetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ItineraireService {
 
-    @Autowired private ItineraireRepository itineraireRepository;
+    @Autowired
+    private ItineraireRepository itineraireRepository;
+
+    @Autowired
+    private SegmentTrajetRepository segmentTrajetRepository;
 
     public List<Itineraire> rechercherItineraires(String depart, String arrivee) {
+        List<Itineraire> directs = itineraireRepository.findDirects(depart, arrivee);
+
+        if (!directs.isEmpty()) {
+            return directs;
+        }
+
+        return rechercherCorrespondances(depart, arrivee);
+    }
+
+    private List<Itineraire> rechercherCorrespondances(String depart, String arrivee) {
         List<Itineraire> resultats = new ArrayList<>();
 
-        // 1. Cherche les trajets directs
-        List<Itineraire> directs = itineraireRepository.findDirects(depart, arrivee);
-        resultats.addAll(directs);
+        List<SegmentTrajet> premiersSegments =
+                segmentTrajetRepository.findByVilleDepartNom(depart);
 
-        // 2. Cherche les correspondances
-        List<Itineraire> correspondances = itineraireRepository.findCorrespondances(depart, arrivee);
+        List<SegmentTrajet> deuxiemesSegments =
+                segmentTrajetRepository.findByVilleArriveeNom(arrivee);
 
-        // Filtre : garde uniquement les correspondances valides (horaires compatibles)
-        for (Itineraire itin : correspondances) {
-            if (itin.estCompatible()) {
-                // Vérifie que le premier segment part bien de depart
-                // et le dernier arrive bien à arrivee
-                String villeDepart = itin.getVilleDepart() != null ?
-                        itin.getVilleDepart().getNom() : "";
-                String villeArrivee = itin.getVilleArrivee() != null ?
-                        itin.getVilleArrivee().getNom() : "";
+        for (SegmentTrajet premier : premiersSegments) {
+            for (SegmentTrajet deuxieme : deuxiemesSegments) {
 
-                if (villeDepart.equals(depart) && villeArrivee.equals(arrivee)) {
-                    resultats.add(itin);
+                boolean memeVilleCorrespondance =
+                        premier.getVilleArrivee().getNom()
+                                .equalsIgnoreCase(deuxieme.getVilleDepart().getNom());
+
+                boolean horairesCompatibles =
+                        premier.getHeureArrivee().isBefore(deuxieme.getHeureDepart());
+
+                if (memeVilleCorrespondance && horairesCompatibles) {
+                    Itineraire itineraire = new Itineraire();
+                    itineraire.setSegments(List.of(premier, deuxieme));
+                    resultats.add(itineraire);
                 }
             }
         }
@@ -42,6 +60,6 @@ public class ItineraireService {
     }
 
     public boolean verifierCompatibilite(Itineraire itineraire) {
-        return itineraire.estCompatible();
+        return itineraire != null && itineraire.estCompatible();
     }
 }
