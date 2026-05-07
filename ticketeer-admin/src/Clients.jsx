@@ -1,20 +1,25 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 function Clients() {
-  const clients = [
-    { id: 1, nom: "Alice Martin", email: "alice@test.com" },
-    { id: 2, nom: "Karim Benali", email: "karim@test.com" },
-    { id: 3, nom: "Sofia Leroy", email: "sofia@test.com" },
-    { id: 4, nom: "Nadia Dupont", email: "nadia@test.com" },
-  ];
+  const [clients, setClients] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/admin/clients")
+      .then((res) => setClients(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <section className="page-section">
       <h2>Clients 👤</h2>
 
       <div className="items-list">
-        {clients.map((c) => (
-          <div className="item-card" key={c.id}>
-            👤 {c.nom}
-            <span className="muted">📧 {c.email}</span>
+        {clients.map((client) => (
+          <div className="item-card" key={client.id}>
+            👤 <strong>{client.nom}</strong>
+            <span className="muted">📧 {client.email}</span>
           </div>
         ))}
       </div>

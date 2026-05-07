@@ -1,46 +1,36 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 function Historique() {
-  const validations = [
-    {
-      id: 1,
-      billetUuid: "a3f1-2026",
-      resultat: "ACCEPTEE",
-      train: "TGV-101",
-      trajet: "Paris → Lyon",
-    },
-    {
-      id: 2,
-      billetUuid: "b7c2-2026",
-      resultat: "REFUSEE",
-      train: "TER-204",
-      trajet: "Marseille → Nice",
-      motifRefus: "Billet déjà utilisé",
-    },
-    {
-      id: 3,
-      billetUuid: "d9e4-2026",
-      resultat: "ACCEPTEE",
-      train: "TGV-330",
-      trajet: "Lille → Paris",
-    },
-  ];
+  const [validations, setValidations] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/admin/validations")
+      .then((res) => setValidations(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <section className="page-section">
       <h2>Historique 📋</h2>
 
       <div className="items-list">
-        {validations.map((v) => (
-          <div className="item-card" key={v.id}>
-            🎫 Billet : {v.billetUuid}
-            <span className="muted">🚄 {v.train} · {v.trajet}</span>
-            <span className="muted">
-              {v.resultat === "ACCEPTEE" ? "✅ Acceptée" : "❌ Refusée"}
-            </span>
-            {v.motifRefus && (
-              <span className="muted">Motif : {v.motifRefus}</span>
-            )}
+        {validations.length === 0 ? (
+          <div className="item-card">
+            Aucune validation pour le moment
           </div>
-        ))}
+        ) : (
+          validations.map((v) => (
+            <div className="item-card" key={v.id}>
+              🎫 Validation #{v.id}
+              <span className="muted">Résultat : {v.resultat}</span>
+              {v.motifRefus && (
+                <span className="muted">Motif : {v.motifRefus}</span>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </section>
   );
