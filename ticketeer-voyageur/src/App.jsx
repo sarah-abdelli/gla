@@ -6,19 +6,29 @@ import Billet from './pages/Billet'
 import Paiement from './pages/Paiement'
 
 function App() {
-  return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Accueil />} />
-            <Route path="/recherche" element={<Recherche />} />
-            <Route path="/paiement" element={<Paiement />} />
-            <Route path="/billet/:uuid" element={<Billet />} />
-          </Routes>
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<Accueil />} />
+                <Route path="/recherche" element={
+                    <div className="container mx-auto px-4 py-10 max-w-4xl">
+                        <Recherche />
+                    </div>
+                } />
+                <Route path="/paiement" element={
+                    <div className="container mx-auto px-4 py-10 max-w-2xl">
+                        <Paiement />
+                    </div>
+                } />
+                <Route path="/billet/:uuid" element={
+                    <div className="container mx-auto px-4 py-10">
+                        <Billet />
+                    </div>
+                } />
+            </Routes>
         </div>
-      </div>
-  )
+    )
 }
 
 export default App
