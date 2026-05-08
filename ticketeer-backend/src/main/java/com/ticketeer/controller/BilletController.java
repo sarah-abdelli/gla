@@ -5,6 +5,7 @@ import com.ticketeer.service.BilletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,13 +23,18 @@ public class BilletController {
         ));
     }
 
-    @GetMapping("/{uuid}")
+    @GetMapping("/{uuid:.+}")
     public ResponseEntity<Billet> getBillet(@PathVariable String uuid) {
         return ResponseEntity.ok(billetService.getBillet(uuid));
     }
 
-    @GetMapping("/{uuid}/qr")
+    @GetMapping("/{uuid:.+}/qr")
     public ResponseEntity<Map<String, String>> getQR(@PathVariable String uuid) {
         return ResponseEntity.ok(Map.of("uuid", billetService.getQRData(uuid)));
+    }
+
+    @GetMapping("/voyageur/{voyageurId}")
+    public ResponseEntity<List<Billet>> getMesBillets(@PathVariable Long voyageurId) {
+        return ResponseEntity.ok(billetService.getBilletsByVoyageur(voyageurId));
     }
 }

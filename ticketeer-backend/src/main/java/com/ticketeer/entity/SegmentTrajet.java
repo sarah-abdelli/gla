@@ -40,17 +40,17 @@ public class SegmentTrajet {
     @JoinColumn(name = "train_id", nullable = false)
     private Train train;
 
-    /** Vérifie que l'heure de contrôle est dans la fenêtre horaire */
+    @Column(nullable = false)
+    private int placesDisponibles = 200;
+
     public boolean estDansLaBonnePlage(LocalTime heure) {
         return !heure.isBefore(heureDepart) && !heure.isAfter(heureArrivee);
     }
 
-    /** Surcharge : vérifie aussi la date */
     public boolean estDansLaBonnePlage(LocalDate date, LocalTime heure) {
         return dateDepart.equals(date) && estDansLaBonnePlage(heure);
     }
 
-    /** Vérifie que ce segment est associé au train donné */
     public boolean estAssocieAuTrain(String numeroTrain) {
         return this.train != null && this.train.getNumero().equals(numeroTrain);
     }

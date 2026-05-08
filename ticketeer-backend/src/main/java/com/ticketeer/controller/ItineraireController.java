@@ -5,6 +5,8 @@ import com.ticketeer.service.ItineraireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -17,7 +19,9 @@ public class ItineraireController {
     @GetMapping("/search")
     public ResponseEntity<List<Itineraire>> search(
             @RequestParam String depart,
-            @RequestParam String arrivee) {
-        return ResponseEntity.ok(itineraireService.rechercherItineraires(depart, arrivee));
+            @RequestParam String arrivee,
+            @RequestParam(required = false) String date) {
+        LocalDate localDate = (date != null && !date.isBlank()) ? LocalDate.parse(date) : LocalDate.now();
+        return ResponseEntity.ok(itineraireService.rechercherItineraires(depart, arrivee, localDate));
     }
 }

@@ -3,9 +3,9 @@ package com.ticketeer.service;
 import com.ticketeer.entity.*;
 import com.ticketeer.enums.EtatBillet;
 import com.ticketeer.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,6 +16,7 @@ public class BilletService {
     @Autowired private VoyageurRepository voyageurRepository;
     @Autowired private ItineraireRepository itineraireRepository;
 
+    @Transactional
     public Billet creerBillet(Long voyageurId, Long itineraireId) {
         Voyageur voyageur = voyageurRepository.findById(voyageurId)
                 .orElseThrow(() -> new RuntimeException("Voyageur introuvable"));
@@ -23,7 +24,8 @@ public class BilletService {
                 .orElseThrow(() -> new RuntimeException("Itinéraire introuvable"));
 
         Billet billet = new Billet();
-        billet.setUuid(java.util.UUID.randomUUID().toString());        billet.setDateCreation(LocalDateTime.now());
+        billet.setUuid(java.util.UUID.randomUUID().toString());
+        billet.setDateCreation(LocalDateTime.now());
         billet.setEtat(EtatBillet.VALIDE);
         billet.setVoyageur(voyageur);
         billet.setItineraire(itineraire);
@@ -31,16 +33,13 @@ public class BilletService {
         return billetRepository.save(billet);
     }
 
-    // Méthode prévue dans le schéma de conception
-    public void associerSegments(Billet billet, Itineraire itineraire) {
-        List<SegmentTrajet> segments = itineraire.getSegments();
-        billet.setItineraire(itineraire);
-        billetRepository.save(billet);
+    public Billet getBillet(String uuid) {
+        return billetRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("Billet introuvable : " + uuid));
     }
 
-    public Billet getBillet(String uuid) {
-        return billetRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Billet introuvable : " + uuid));
+    public List<Billet> getBilletsByVoyageur(Long voyageurId) {
+        return billetRepository.findByVoyageurId(voyageurId);
     }
 
     public void invaliderBillet(String uuid) {
@@ -50,7 +49,7 @@ public class BilletService {
     }
 
     public String getQRData(String uuid) {
-        getBillet(uuid); // vérifie que le billet existe
-        return uuid;     // le QR contient uniquement l'UUID
+        getBillet(uuid);
+        return uuid;
     }
 }
