@@ -19,6 +19,19 @@ function getDuree(itin) {
     return mins >= 60 ? `${Math.floor(mins / 60)}h${mins % 60 > 0 ? (mins % 60) + 'min' : ''}` : `${mins}min`
 }
 
+function calculerPrix(itin) {
+    const dep = itin.segments[0]?.heureDepart
+    const arr = itin.segments[itin.segments.length - 1]?.heureArrivee
+    if (!dep || !arr) return '29,90 €'
+    const [dh, dm] = dep.split(':').map(Number)
+    const [ah, am] = arr.split(':').map(Number)
+    const mins = (ah * 60 + am) - (dh * 60 + dm)
+    const heures = mins / 60
+    const surcharge = itin.segments.length > 1 ? 5 : 0
+    const prix = Math.round(15 + heures * 7 + surcharge)
+    return prix.toFixed(2).replace('.', ',') + ' €'
+}
+
 function getPlacesMin(itin) {
     if (!itin.segments.length) return null
     return Math.min(...itin.segments.map(s => s.placesDisponibles ?? 200))
@@ -72,7 +85,7 @@ function Recherche() {
         }
     }
 
-    const selectionner = (itin) => navigate('/paiement', { state: { itineraire: itin } })
+    const selectionner = (itin) => navigate('/paiement', { state: { itineraire: itin, prix: calculerPrix(itin) } })
 
     const dateAffichee = date
         ? new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -204,7 +217,7 @@ function Recherche() {
                                         {/* Price + places + CTA */}
                                         <div className="flex flex-col items-center md:items-end gap-3 min-w-[160px]">
                                             <div className="text-right">
-                                                <div className="text-3xl font-black text-green-600">29,90 €</div>
+                                                <div className="text-3xl font-black text-green-600">{calculerPrix(itin)}</div>
                                                 <div className="text-xs text-gray-400">par voyageur</div>
                                             </div>
                                             <PlacesBadge places={places} />

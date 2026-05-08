@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 const features = [
-    { icon: '🔍', title: 'Recherchez', desc: 'Trouvez parmi 7 itinéraires entre 10 grandes villes de France.' },
+    { icon: '🔍', title: 'Recherchez', desc: 'Trouvez parmi 14 itinéraires entre 10 grandes villes de France.' },
     { icon: '💳', title: 'Réservez', desc: 'Paiement simulé sécurisé. Billet généré instantanément.' },
     { icon: '📱', title: 'Voyagez', desc: "Présentez votre QR Code à l'agent de contrôle à bord." }
 ]
@@ -37,7 +37,7 @@ function Accueil() {
                 <div className="container mx-auto px-6 py-8 grid grid-cols-3 gap-6 max-w-2xl">
                     {[
                         { val: '10', label: 'Villes desservies' },
-                        { val: '7',  label: 'Itinéraires' },
+                        { val: '14', label: 'Itinéraires' },
                         { val: '5',  label: 'Trains TGV / IC' },
                     ].map(s => (
                         <div key={s.label} className="text-center">

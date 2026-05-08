@@ -1,8 +1,16 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function Navbar() {
     const location = useLocation()
+    const navigate = useNavigate()
+    const { user, logout } = useAuth()
     const isActive = (path) => location.pathname === path
+
+    const handleLogout = () => {
+        logout()
+        navigate('/')
+    }
 
     return (
         <nav className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-xl">
@@ -24,13 +32,37 @@ function Navbar() {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                    <Link to="/" className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all ${isActive('/') ? 'bg-white text-blue-800 shadow' : 'text-white hover:bg-white/10'}`}>
+                    <Link to="/" className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${isActive('/') ? 'bg-white text-blue-800 shadow' : 'text-white hover:bg-white/10'}`}>
                         Accueil
                     </Link>
-                    <Link to="/recherche" className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-1.5 ${isActive('/recherche') ? 'bg-white text-blue-800 shadow' : 'text-white hover:bg-white/10'}`}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <Link to="/recherche" className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-1.5 ${isActive('/recherche') ? 'bg-white text-blue-800 shadow' : 'text-white hover:bg-white/10'}`}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         Rechercher
                     </Link>
+
+                    {user ? (
+                        <>
+                            <Link to="/mes-billets" className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-1.5 ${isActive('/mes-billets') ? 'bg-white text-blue-800 shadow' : 'text-white hover:bg-white/10'}`}>
+                                🎫 Mes billets
+                            </Link>
+                            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-blue-500">
+                                <div className="bg-white/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-blue-900 font-black text-xs">
+                                        {user.nom.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="text-sm font-semibold text-white">{user.nom.split(' ')[0]}</span>
+                                </div>
+                                <button onClick={handleLogout}
+                                        className="text-blue-200 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all">
+                                    Déconnexion
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <Link to="/login" className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-1.5 ${isActive('/login') ? 'bg-white text-blue-800 shadow' : 'bg-yellow-400 text-blue-900 hover:bg-yellow-300'}`}>
+                            🔐 Connexion
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>

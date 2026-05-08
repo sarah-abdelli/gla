@@ -38,6 +38,10 @@ public class BilletService {
                 .orElseThrow(() -> new RuntimeException("Billet introuvable : " + uuid));
     }
 
+    public List<Billet> getBilletsByVoyageur(Long voyageurId) {
+        return billetRepository.findByVoyageurId(voyageurId);
+    }
+
     public void invaliderBillet(String uuid) {
         Billet billet = getBillet(uuid);
         billet.invalider();

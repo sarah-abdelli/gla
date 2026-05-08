@@ -13,4 +13,10 @@ export const creerBillet = (voyageurId, itineraireId) =>
 export const getBillet = (uuid) =>
     api.get(`/billets/${uuid}`)
 
+export const getMesBillets = (voyageurId) =>
+    api.get(`/billets/voyageur/${voyageurId}`)
+
+export const loginVoyageur = (email, motDePasse) =>
+    api.post('/auth/login/voyageur', { email, motDePasse })
+
 export default api
