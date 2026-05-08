@@ -1,0 +1,56 @@
+package com.ticketeer.service;
+
+import com.ticketeer.entity.*;
+import com.ticketeer.enums.EtatBillet;
+import com.ticketeer.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class BilletService {
+
+    @Autowired private BilletRepository billetRepository;
+    @Autowired private VoyageurRepository voyageurRepository;
+    @Autowired private ItineraireRepository itineraireRepository;
+
+    public Billet creerBillet(Long voyageurId, Long itineraireId) {
+        Voyageur voyageur = voyageurRepository.findById(voyageurId)
+                .orElseThrow(() -> new RuntimeException("Voyageur introuvable"));
+        Itineraire itineraire = itineraireRepository.findById(itineraireId)
+                .orElseThrow(() -> new RuntimeException("Itinéraire introuvable"));
+
+        Billet billet = new Billet();
+        billet.setUuid(java.util.UUID.randomUUID().toString());        billet.setDateCreation(LocalDateTime.now());
+        billet.setEtat(EtatBillet.VALIDE);
+        billet.setVoyageur(voyageur);
+        billet.setItineraire(itineraire);
+
+        return billetRepository.save(billet);
+    }
+
+    // Méthode prévue dans le schéma de conception
+    public void associerSegments(Billet billet, Itineraire itineraire) {
+        List<SegmentTrajet> segments = itineraire.getSegments();
+        billet.setItineraire(itineraire);
+        billetRepository.save(billet);
+    }
+
+    public Billet getBillet(String uuid) {
+        return billetRepository.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Billet introuvable : " + uuid));
+    }
+
+    public void invaliderBillet(String uuid) {
+        Billet billet = getBillet(uuid);
+        billet.invalider();
+        billetRepository.save(billet);
+    }
+
+    public String getQRData(String uuid) {
+        getBillet(uuid); // vérifie que le billet existe
+        return uuid;     // le QR contient uniquement l'UUID
+    }
+}
