@@ -1,5 +1,7 @@
 package com.ticketeer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @ToString(exclude = "billets")
+@JsonIgnoreProperties({"billets", "hibernateLazyInitializer", "handler"})
 public class Voyageur {
 
     @Id
@@ -27,6 +30,7 @@ public class Voyageur {
     @Column(nullable = false)
     private String motDePasse;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "voyageur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Billet> billets = new ArrayList<>();
 
