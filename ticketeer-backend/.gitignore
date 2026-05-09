@@ -1,0 +1,32 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Variables d'environnement (ne jamais commit les secrets !)
+.env
+application-local.properties
