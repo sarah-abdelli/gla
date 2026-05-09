@@ -3,6 +3,7 @@ import Login from "./Login";
 import Dashboard from "./Dashboard";
 import Villes from "./Villes";
 import Trains from "./Trains";
+import Segments from "./Segments";
 import Historique from "./Historique";
 import Clients from "./Clients";
 import "./App.css";
@@ -27,6 +28,8 @@ function App() {
         return <Villes />;
       case "trains":
         return <Trains />;
+      case "segments":
+        return <Segments />;
       case "historique":
         return <Historique />;
       case "clients":
@@ -69,6 +72,13 @@ function App() {
           </button>
 
           <button
+            className={page === "segments" ? "active" : ""}
+            onClick={() => setPage("segments")}
+          >
+            🛤️ Segments
+          </button>
+
+          <button
             className={page === "historique" ? "active" : ""}
             onClick={() => setPage("historique")}
           >
@@ -90,7 +100,7 @@ function App() {
 
       <main className="main-content">
         <h1 className="page-title">Admin Ticketeer 🎟️</h1>
-        <p className="page-subtitle">Panneau d’administration</p>
+        <p className="page-subtitle">Panneau d'administration</p>
 
         {renderPage()}
       </main>

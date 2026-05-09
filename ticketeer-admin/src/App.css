@@ -51,7 +51,7 @@ body {
   overflow: hidden;
 }
 
-/* Cercles décoratifs comme dans la photo */
+/* Cercles décoratifs  */
 .login-page::before {
   content: '';
   position: absolute;
