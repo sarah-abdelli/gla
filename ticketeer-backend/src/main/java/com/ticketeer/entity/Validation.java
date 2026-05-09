@@ -1,5 +1,6 @@
 package com.ticketeer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ticketeer.enums.ResultatValidation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,12 +31,14 @@ public class Validation {
     @Column
     private String motifRefus;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "billet_uuid", nullable = false)
+    @JsonIgnoreProperties({"validations", "voyageur", "itineraire"})
     private Billet billet;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "agent_id", nullable = false)
+    @JsonIgnoreProperties({"tokens", "validations", "motDePasse"})
     private AgentControle agent;
 
     /** Factory : crée une validation ACCEPTEE */
