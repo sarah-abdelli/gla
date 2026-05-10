@@ -33,8 +33,8 @@ public class AdminService {
     }
 
     public SegmentTrajet ajouterSegment(String nomDepart, String nomArrivee,
-                                        String numeroTrain, LocalDate date,
-                                        LocalTime heureDepart, LocalTime heureArrivee) {
+                                         String numeroTrain, LocalDate date,
+                                         LocalTime heureDepart, LocalTime heureArrivee) {
         Ville depart = villeRepository.findByNom(nomDepart)
                 .orElseThrow(() -> new RuntimeException("Ville départ introuvable"));
         Ville arrivee = villeRepository.findByNom(nomArrivee)
@@ -52,7 +52,7 @@ public class AdminService {
         return segmentRepository.save(segment);
     }
 
-    public List<Validation> consulterTracabilite(String uuid) {
+        public List<Validation> consulterTracabilite(String uuid) {
         return validationRepository.findByBilletUuid(uuid);
     }
 
