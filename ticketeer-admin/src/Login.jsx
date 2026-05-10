@@ -54,9 +54,6 @@ function Login({ onLogin }) {
             <div className="form-group">
               <div className="form-group-header">
                 <label>Mot de passe</label>
-                <a href="#" className="forgot-link">
-                  Mot de passe oublié ?
-                </a>
               </div>
 
               <input
@@ -73,11 +70,6 @@ function Login({ onLogin }) {
 
             {error && <p className="error">{error}</p>}
           </form>
-
-          <div className="login-footer">
-            Accès restreint · <a href="#">Assistance</a> ·{" "}
-            <a href="#">Documentation</a>
-          </div>
         </div>
       </div>
     </div>
