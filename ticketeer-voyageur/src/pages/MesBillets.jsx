@@ -11,21 +11,65 @@ function MesBillets() {
 
     useEffect(() => {
         getMesBillets(user.id)
-            .then(res => setBillets(res.data))
+            .then(res => {
+                const data = Array.isArray(res.data) ? res.data : []
+
+                // Trier par date+heure de départ : les plus récents en premier
+                const sorted = [...data].sort((a, b) => {
+                    const segsA = a.itineraire?.segments || []
+                    const segsB = b.itineraire?.segments || []
+                    const dateA = segsA[0]?.dateDepart && segsA[0]?.heureDepart
+                        ? new Date(`${segsA[0].dateDepart}T${segsA[0].heureDepart}`)
+                        : new Date(0)
+                    const dateB = segsB[0]?.dateDepart && segsB[0]?.heureDepart
+                        ? new Date(`${segsB[0].dateDepart}T${segsB[0].heureDepart}`)
+                        : new Date(0)
+                    return dateB - dateA // plus récent en premier
+                })
+
+                setBillets(sorted)
+            })
             .catch(() => setErreur('Impossible de charger vos billets.'))
             .finally(() => setLoading(false))
     }, [user.id])
 
+    // Vérifie si le DERNIER segment est terminé (heure d'arrivée passée)
+    const estExpire = (segs) => {
+        if (!segs || segs.length === 0) return false
+        const dernierSeg = segs[segs.length - 1]
+        const dep   = dernierSeg?.dateDepart
+        const heure = dernierSeg?.heureArrivee
+        if (!dep || !heure) return false
+        return new Date() > new Date(`${dep}T${heure}`)
+    }
+
+    const etatEffectif = (billet, segs) => {
+        // Si la date+heure d'arrivée du dernier segment est passée → EXPIRÉ
+        // peu importe l'état en base (VALIDE ou UTILISÉ)
+        if (estExpire(segs)) return 'EXPIRE'
+        if (billet.etat === 'INVALIDE') return 'INVALIDE'
+        return billet.etat
+    }
+
     const etatStyle = (etat) => {
         if (etat === 'VALIDE')  return 'bg-green-100 text-green-700 border-green-200'
         if (etat === 'UTILISE') return 'bg-gray-100 text-gray-500 border-gray-200'
+        if (etat === 'EXPIRE')  return 'bg-gray-100 text-gray-400 border-gray-200'
         return 'bg-red-100 text-red-600 border-red-200'
     }
 
     const etatIcon = (etat) => {
         if (etat === 'VALIDE')  return '✅'
         if (etat === 'UTILISE') return '☑️'
+        if (etat === 'EXPIRE')  return '⏰'
         return '❌'
+    }
+
+    const barreStyle = (etat) => {
+        if (etat === 'VALIDE')  return 'bg-green-500'
+        if (etat === 'UTILISE') return 'bg-gray-300'
+        if (etat === 'EXPIRE')  return 'bg-gray-300'
+        return 'bg-red-400'
     }
 
     if (loading) return (
@@ -74,21 +118,25 @@ function MesBillets() {
                     const date   = segs[0]?.dateDepart
                     const isDirect = segs.length === 1
 
+                    const etat = etatEffectif(billet, segs)
+                    const isGrise = etat === 'UTILISE' || etat === 'EXPIRE' || etat === 'INVALIDE'
+
                     return (
-                        <div key={billet.uuid} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl transition-all">
-                            <div className={`h-1.5 w-full ${billet.etat === 'VALIDE' ? 'bg-green-500' : billet.etat === 'UTILISE' ? 'bg-gray-300' : 'bg-red-400'}`} />
+                        <div key={billet.uuid}
+                             className={`bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl transition-all ${isGrise ? 'opacity-60' : ''}`}>
+                            <div className={`h-1.5 w-full ${barreStyle(etat)}`} />
 
                             <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-6 flex-1">
                                     <div className="text-center min-w-[80px]">
-                                        <div className="text-2xl font-black text-gray-800">{hDep}</div>
-                                        <div className="text-sm font-bold text-blue-700 mt-0.5">{villeD}</div>
+                                        <div className={`text-2xl font-black ${isGrise ? 'text-gray-400' : 'text-gray-800'}`}>{hDep}</div>
+                                        <div className={`text-sm font-bold mt-0.5 ${isGrise ? 'text-gray-400' : 'text-blue-700'}`}>{villeD}</div>
                                     </div>
 
                                     <div className="flex flex-col items-center flex-1">
                                         <div className="relative w-full flex items-center">
                                             <div className="h-0.5 bg-gray-200 flex-1 rounded" />
-                                            <span className="mx-2 text-xl">🚄</span>
+                                            <span className="mx-2 text-xl">{isGrise ? '🚂' : '🚄'}</span>
                                             <div className="h-0.5 bg-gray-200 flex-1 rounded" />
                                         </div>
                                         <div className={`mt-1.5 text-xs font-bold px-2 py-0.5 rounded-full ${isDirect ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
@@ -97,8 +145,8 @@ function MesBillets() {
                                     </div>
 
                                     <div className="text-center min-w-[80px]">
-                                        <div className="text-2xl font-black text-gray-800">{hArr}</div>
-                                        <div className="text-sm font-bold text-blue-700 mt-0.5">{villeA}</div>
+                                        <div className={`text-2xl font-black ${isGrise ? 'text-gray-400' : 'text-gray-800'}`}>{hArr}</div>
+                                        <div className={`text-sm font-bold mt-0.5 ${isGrise ? 'text-gray-400' : 'text-blue-700'}`}>{villeA}</div>
                                     </div>
                                 </div>
 
@@ -108,11 +156,15 @@ function MesBillets() {
                                             📅 {new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                                         </div>
                                     )}
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${etatStyle(billet.etat)}`}>
-                                        {etatIcon(billet.etat)} {billet.etat}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${etatStyle(etat)}`}>
+                                        {etatIcon(etat)} {etat}
                                     </span>
                                     <Link to={`/billet/${billet.uuid}`}
-                                          className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl font-bold text-xs shadow transition-all hover:scale-105 flex items-center gap-1.5">
+                                          className={`px-4 py-2 rounded-xl font-bold text-xs shadow transition-all flex items-center gap-1.5 ${
+                                              isGrise
+                                                  ? 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                                                  : 'bg-blue-700 hover:bg-blue-800 text-white hover:scale-105'
+                                          }`}>
                                         Voir le billet →
                                     </Link>
                                 </div>
