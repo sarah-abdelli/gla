@@ -19,6 +19,7 @@ public class ValidationService {
     public Validation validerBillet(String uuid, String tokenValeur,
                                     String numeroTrain, LocalDate date, LocalTime heure) {
 
+        // 1. Vérifier le token de l'agent
         AgentControle agent = tokenService.getAgentParToken(tokenValeur);
         if (agent == null) {
             Validation v = new Validation();
@@ -28,6 +29,7 @@ public class ValidationService {
             return v;
         }
 
+        // 2. Vérifier que le billet existe
         Billet billet = billetRepository.findById(uuid).orElse(null);
         if (billet == null) {
             Validation v = new Validation();
@@ -38,6 +40,7 @@ public class ValidationService {
             return v;
         }
 
+        // 3. Vérifier l'état du billet
         if (!billet.estValide()) {
             Validation v = new Validation();
             v.setDateHeure(LocalDateTime.now());
@@ -45,28 +48,66 @@ public class ValidationService {
             v.setMotifRefus("Billet déjà utilisé ou invalide");
             v.setBillet(billet);
             v.setAgent(agent);
-            return validationRepository.save(v);
+            try { return validationRepository.save(v); } catch (Exception e) { return v; }
         }
 
-        if (!verifierSegment(billet, numeroTrain)) {
-            return enregistrerRefus(billet, agent, "Hors itinéraire - mauvais train");
+        // 4. Vérifier que le train correspond à l'itinéraire
+        if (numeroTrain != null && !numeroTrain.isEmpty()) {
+            if (!verifierSegment(billet, numeroTrain)) {
+                return enregistrerRefus(billet, agent, "Mauvais train - ce billet n'est pas valable sur ce train");
+            }
+
+            // 5. Vérifier date et heure
+            if (!verifierContexte(billet, numeroTrain, date, heure)) {
+                return enregistrerRefus(billet, agent, "Mauvaise date ou heure de voyage");
+            }
+
+            // 6. Anti-fraude : vérifier si ce train a déjà été validé pour ce billet
+            boolean dejaValide = validationRepository
+                    .findByBilletUuid(uuid)
+                    .stream()
+                    .filter(v -> v.getResultat() == ResultatValidation.ACCEPTEE)
+                    .anyMatch(v -> numeroTrain.equals(v.getNumeroTrain()));
+
+            if (dejaValide) {
+                return enregistrerRefus(billet, agent, "Ce segment a déjà été validé");
+            }
         }
 
-        if (!verifierContexte(billet, numeroTrain, date, heure)) {
-            return enregistrerRefus(billet, agent, "Mauvaise date ou heure");
-        }
-
-        if (verifierDernierSegment(billet, numeroTrain)) {
-            billet.marquerUtilise();
-            billetRepository.save(billet);
-        }
-
+        // 7. Enregistrer d'abord la validation ACCEPTEE avec le numéro du train
         Validation validation = new Validation();
         validation.setDateHeure(LocalDateTime.now());
         validation.setResultat(ResultatValidation.ACCEPTEE);
         validation.setBillet(billet);
         validation.setAgent(agent);
-        return validationRepository.save(validation);
+        validation.setNumeroTrain(numeroTrain);
+        try {
+            validation = validationRepository.save(validation);
+        } catch (Exception e) {
+            // On continue même si la sauvegarde échoue
+        }
+
+        // 8. Marquer le billet UTILISÉ seulement si TOUS les segments ont été validés
+        //    (on compte les validations ACCEPTEE en base + celle qu'on vient d'enregistrer)
+        if (numeroTrain == null || numeroTrain.isEmpty()) {
+            // Pas de numéro de train fourni : on marque directement UTILISÉ
+            billet.marquerUtilise();
+            billetRepository.save(billet);
+        } else {
+            long nbSegments = billet.getItineraire().getSegments().size();
+            long nbValidationsAcceptees = validationRepository
+                    .findByBilletUuid(uuid)
+                    .stream()
+                    .filter(v -> v.getResultat() == ResultatValidation.ACCEPTEE)
+                    .count();
+
+            if (nbValidationsAcceptees >= nbSegments) {
+                billet.marquerUtilise();
+                billetRepository.save(billet);
+            }
+        }
+
+        return validation;
     }
 
     private boolean verifierSegment(Billet billet, String numeroTrain) {
@@ -81,12 +122,6 @@ public class ValidationService {
                 .anyMatch(s -> s.getDateDepart().equals(date) && s.estDansLaBonnePlage(heure));
     }
 
-    private boolean verifierDernierSegment(Billet billet, String numeroTrain) {
-        List<SegmentTrajet> segments = billet.getItineraire().getSegments();
-        if (segments == null || segments.isEmpty()) return false;
-        return segments.get(segments.size() - 1).getTrain().getNumero().equals(numeroTrain);
-    }
-
     private Validation enregistrerRefus(Billet billet, AgentControle agent, String motif) {
         Validation v = new Validation();
         v.setDateHeure(LocalDateTime.now());
@@ -94,7 +129,7 @@ public class ValidationService {
         v.setMotifRefus(motif);
         v.setAgent(agent);
         v.setBillet(billet);
-        return validationRepository.save(v);
+        try { return validationRepository.save(v); } catch (Exception e) { return v; }
     }
 
     public List<Validation> getHistorique(String uuid) {
