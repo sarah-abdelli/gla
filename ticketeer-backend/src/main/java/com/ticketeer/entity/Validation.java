@@ -31,6 +31,10 @@ public class Validation {
     @Column
     private String motifRefus;
 
+    /** Numéro du train sur lequel la validation a été effectuée */
+    @Column
+    private String numeroTrain;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "billet_uuid", nullable = false)
     @JsonIgnoreProperties({"validations", "voyageur", "itineraire"})
@@ -42,12 +46,13 @@ public class Validation {
     private AgentControle agent;
 
     /** Factory : crée une validation ACCEPTEE */
-    public static Validation acceptee(Billet billet, AgentControle agent) {
+    public static Validation acceptee(Billet billet, AgentControle agent, String numeroTrain) {
         Validation v = new Validation();
         v.dateHeure = LocalDateTime.now();
         v.resultat = ResultatValidation.ACCEPTEE;
         v.billet = billet;
         v.agent = agent;
+        v.numeroTrain = numeroTrain;
         return v;
     }
 

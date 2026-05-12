@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BilletService {
@@ -23,6 +24,16 @@ public class BilletService {
         Itineraire itineraire = itineraireRepository.findById(itineraireId)
                 .orElseThrow(() -> new RuntimeException("Itinéraire introuvable"));
 
+        // Vérifier si un billet VALIDE existe déjà pour ce voyageur et cet itinéraire
+        Optional<Billet> existant = billetRepository
+                .findByVoyageurIdAndItineraireIdAndEtat(voyageurId, itineraireId, EtatBillet.VALIDE);
+
+        if (existant.isPresent()) {
+            // Retourner le billet existant au lieu d'en créer un nouveau
+            return existant.get();
+        }
+
+        // Créer un nouveau billet
         Billet billet = new Billet();
         billet.setUuid(java.util.UUID.randomUUID().toString());
         billet.setDateCreation(LocalDateTime.now());
