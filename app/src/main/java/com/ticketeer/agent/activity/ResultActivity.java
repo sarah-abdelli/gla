@@ -18,28 +18,35 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        TextView tvResultat = findViewById(R.id.tv_resultat);
-        TextView tvUuid = findViewById(R.id.tv_uuid);
-        TextView tvMotif = findViewById(R.id.tv_motif);
+        TextView tvIcone      = findViewById(R.id.tv_icone);
+        TextView tvResultat   = findViewById(R.id.tv_resultat);
+        TextView tvMotif      = findViewById(R.id.tv_motif);
+        TextView tvUuid       = findViewById(R.id.tv_uuid);
+        TextView tvTrain      = findViewById(R.id.tv_train);
+        LinearLayout layoutHeader = findViewById(R.id.layout_header);
         Button btnNouveauScan = findViewById(R.id.btn_nouveau_scan);
-        LinearLayout layoutResult = findViewById(R.id.layout_result);
 
-        String resultat = getIntent().getStringExtra("resultat");
-        String uuid = getIntent().getStringExtra("uuid");
-        String motif = getIntent().getStringExtra("motif");
+        String resultat    = getIntent().getStringExtra("resultat");
+        String uuid        = getIntent().getStringExtra("uuid");
+        String motif       = getIntent().getStringExtra("motif");
+        String numeroTrain = getIntent().getStringExtra("numeroTrain");
 
-        tvUuid.setText("UUID : " + uuid);
+        tvUuid.setText(uuid != null ? uuid : "");
+        tvTrain.setText(numeroTrain != null ? numeroTrain : "");
 
         if ("ACCEPTEE".equals(resultat)) {
-            tvResultat.setText("✅ BILLET VALIDE");
-            tvResultat.setTextColor(Color.parseColor("#4CAF50"));
-            layoutResult.setBackgroundColor(Color.parseColor("#E8F5E9"));
+            tvIcone.setText("✅");
+            tvResultat.setText("BILLET VALIDE");
+            tvResultat.setTextColor(Color.parseColor("#15803D"));
             tvMotif.setText("");
+            layoutHeader.setBackgroundColor(Color.parseColor("#F0FDF4"));
         } else {
-            tvResultat.setText("❌ BILLET REFUSÉ");
-            tvResultat.setTextColor(Color.parseColor("#F44336"));
-            layoutResult.setBackgroundColor(Color.parseColor("#FFEBEE"));
-            tvMotif.setText(motif != null ? "Motif : " + motif : "");
+            tvIcone.setText("❌");
+            tvResultat.setText("BILLET REFUSÉ");
+            tvResultat.setTextColor(Color.parseColor("#DC2626"));
+            tvMotif.setText(motif != null ? motif : "");
+            tvMotif.setTextColor(Color.parseColor("#EF4444"));
+            layoutHeader.setBackgroundColor(Color.parseColor("#FEF2F2"));
         }
 
         btnNouveauScan.setOnClickListener(v -> {

@@ -3150,7 +3150,6 @@ id action_bar_subtitle
 id action_bar_title
 id action_container
 id action_context_bar
-id action_deconnexion
 id action_divider
 id action_image
 id action_menu_divider
@@ -3274,6 +3273,7 @@ id enterAlways
 id enterAlwaysCollapsed
 id et_login
 id et_mot_de_passe
+id et_numero_train
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu
@@ -3326,6 +3326,8 @@ id jumpToEnd
 id jumpToStart
 id labeled
 id layout
+id layout_dernier_scan
+id layout_header
 id layout_result
 id left
 id leftToRight
@@ -3570,8 +3572,12 @@ id transition_scene_layoutid_cache
 id transition_transform
 id triangle
 id tv_agent_nom
+id tv_deconnexion
+id tv_dernier_scan
+id tv_icone
 id tv_motif
 id tv_resultat
+id tv_train
 id tv_uuid
 id unchecked
 id uniform
@@ -3805,7 +3811,6 @@ layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
 layout zxing_barcode_scanner
 layout zxing_capture
-menu menu_scan
 plurals mtrl_badge_content_description
 raw zxing_beep
 string abc_action_bar_home_description
