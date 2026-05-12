@@ -4,6 +4,7 @@ import com.ticketeer.entity.*;
 import com.ticketeer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.*;
 import java.util.List;
 
@@ -24,6 +25,21 @@ public class AdminService {
         return villeRepository.save(ville);
     }
 
+    public List<Ville> getToutesLesVilles() {
+        return villeRepository.findAll();
+    }
+
+    public void supprimerVille(Long id) {
+        if (!villeRepository.existsById(id))
+            throw new RuntimeException("Ville introuvable : " + id);
+
+        List<SegmentTrajet> segments = segmentRepository.findByVilleDepartIdOrVilleArriveeId(id, id);
+        if (!segments.isEmpty())
+            throw new RuntimeException("Impossible de supprimer : ville utilisée dans " + segments.size() + " segment(s)");
+
+        villeRepository.deleteById(id);
+    }
+
     public Train ajouterTrain(String numero) {
         if (trainRepository.existsByNumero(numero))
             throw new RuntimeException("Train déjà existant : " + numero);
@@ -32,15 +48,36 @@ public class AdminService {
         return trainRepository.save(train);
     }
 
+    public List<Train> getTousLesTrains() {
+        return trainRepository.findAll();
+    }
+
+    public void supprimerTrain(Long id) {
+        if (!trainRepository.existsById(id))
+            throw new RuntimeException("Train introuvable : " + id);
+        trainRepository.deleteById(id);
+    }
+
+    public List<Train> getTrainsDisponibles(LocalDate date) {
+        List<Long> occupes = segmentRepository.findTrainIdsUtilisesParDate(date);
+        return trainRepository.findAll()
+                .stream()
+                .filter(t -> !occupes.contains(t.getId()))
+                .toList();
+    }
+
     public SegmentTrajet ajouterSegment(String nomDepart, String nomArrivee,
-                                         String numeroTrain, LocalDate date,
-                                         LocalTime heureDepart, LocalTime heureArrivee) {
+                                        String numeroTrain, LocalDate date,
+                                        LocalTime heureDepart, LocalTime heureArrivee) {
+        if (!heureArrivee.isAfter(heureDepart))
+            throw new RuntimeException("L'heure d'arrivée doit être après l'heure de départ");
+
         Ville depart = villeRepository.findByNom(nomDepart)
-                .orElseThrow(() -> new RuntimeException("Ville départ introuvable"));
+                .orElseThrow(() -> new RuntimeException("Ville départ introuvable : " + nomDepart));
         Ville arrivee = villeRepository.findByNom(nomArrivee)
-                .orElseThrow(() -> new RuntimeException("Ville arrivée introuvable"));
+                .orElseThrow(() -> new RuntimeException("Ville arrivée introuvable : " + nomArrivee));
         Train train = trainRepository.findByNumero(numeroTrain)
-                .orElseThrow(() -> new RuntimeException("Train introuvable"));
+                .orElseThrow(() -> new RuntimeException("Train introuvable : " + numeroTrain));
 
         SegmentTrajet segment = new SegmentTrajet();
         segment.setVilleDepart(depart);
@@ -52,20 +89,38 @@ public class AdminService {
         return segmentRepository.save(segment);
     }
 
-        public List<Validation> consulterTracabilite(String uuid) {
-        return validationRepository.findByBilletUuid(uuid);
+    public List<SegmentTrajet> getTousLesSegments() {
+        return segmentRepository.findAll();
     }
 
-    public List<Ville> getToutesLesVilles() {
-        return villeRepository.findAll();
-    }
-
-    public List<Train> getTousLesTrains() {
-        return trainRepository.findAll();
+    public void supprimerSegment(Long id) {
+        if (!segmentRepository.existsById(id))
+            throw new RuntimeException("Segment introuvable : " + id);
+        segmentRepository.deleteById(id);
     }
 
     public List<Voyageur> getTousLesVoyageurs() {
         return voyageurRepository.findAll();
+    }
+
+    public void supprimerVoyageur(Long id) {
+        if (!voyageurRepository.existsById(id))
+            throw new RuntimeException("Voyageur introuvable : " + id);
+        voyageurRepository.deleteById(id);
+    }
+
+    public Voyageur modifierVoyageur(Long id, String nom, String email) {
+        Voyageur voyageur = voyageurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voyageur introuvable : " + id));
+        if (nom != null && !nom.isBlank())
+            voyageur.setNom(nom);
+        if (email != null && !email.isBlank())
+            voyageur.setEmail(email);
+        return voyageurRepository.save(voyageur);
+    }
+
+    public List<Validation> consulterTracabilite(String uuid) {
+        return validationRepository.findByBilletUuid(uuid);
     }
 
     public List<Validation> getToutesLesValidations() {

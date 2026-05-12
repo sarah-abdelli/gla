@@ -55,8 +55,8 @@ function Billet() {
 
     const etatStyle = !estExpire && billet.etat === 'VALIDE' ? 'bg-green-100 text-green-700 border-green-200' :
         estExpire                             ? 'bg-gray-100 text-gray-400 border-gray-200'   :
-            billet.etat === 'INVALIDE'            ? 'bg-red-100 text-red-600 border-red-200'      :
-                'bg-gray-100 text-gray-500 border-gray-200'
+        billet.etat === 'INVALIDE'            ? 'bg-red-100 text-red-600 border-red-200'      :
+                                               'bg-gray-100 text-gray-500 border-gray-200'
 
     return (
         <div className="max-w-md mx-auto">
@@ -170,7 +170,7 @@ function Billet() {
                                 <p className="text-sm font-semibold">
                                     {billet.etat === 'UTILISE' ? 'Billet déjà utilisé'
                                         : billet.etat === 'INVALIDE' ? 'Billet invalide'
-                                            : 'Billet expiré'}
+                                        : 'Billet expiré'}
                                 </p>
                                 <p className="text-xs mt-1 text-gray-300">QR Code non disponible</p>
                             </div>
