@@ -232,10 +232,11 @@ public class DataInitializer {
                 voyageurRepo.save(new Voyageur(v[0], v[1], passwordEncoder.encode(v[2])));
             System.out.println("✅ 4 voyageurs insérés (BCrypt)");
 
-            // ── 6. AGENTS ─────────────────────────────────────────────────────
+            // ── 6. AGENTS + ADMIN ─────────────────────────────────────────────
             agentRepo.save(new AgentControle("Agent Dupuis",  "agent1", passwordEncoder.encode("agent123")));
             agentRepo.save(new AgentControle("Agent Bernard", "agent2", passwordEncoder.encode("agent456")));
-            System.out.println("✅ 2 agents insérés (BCrypt)");
+            agentRepo.save(new AgentControle("Administrateur", "admin", passwordEncoder.encode("admin123"), "ADMIN"));
+            System.out.println("✅ 2 agents + 1 admin insérés (BCrypt)");
 
             // ── 7. BILLETS DE TEST ─────────────────────────────────────────────
             Voyageur alice = voyageurRepo.findByEmail("alice@test.com").orElseThrow();
@@ -247,6 +248,7 @@ public class DataInitializer {
             System.out.println("🚀 BDD Ticketeer initialisée !");
             System.out.println("   Voyageur : alice@test.com / pass123");
             System.out.println("   Agent    : agent1 / agent123");
+            System.out.println("   Admin    : admin / admin123");
         };
     }
 }

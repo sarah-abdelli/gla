@@ -1,6 +1,7 @@
 package com.ticketeer.service;
 
 import com.ticketeer.entity.*;
+import com.ticketeer.repository.ItineraireRepository;
 import com.ticketeer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.List;
 public class AdminService {
 
     @Autowired private VilleRepository villeRepository;
+    @Autowired private ItineraireRepository itineraireRepository;
     @Autowired private TrainRepository trainRepository;
     @Autowired private SegmentTrajetRepository segmentRepository;
     @Autowired private ValidationRepository validationRepository;
@@ -32,11 +34,9 @@ public class AdminService {
     public void supprimerVille(Long id) {
         if (!villeRepository.existsById(id))
             throw new RuntimeException("Ville introuvable : " + id);
-
         List<SegmentTrajet> segments = segmentRepository.findByVilleDepartIdOrVilleArriveeId(id, id);
         if (!segments.isEmpty())
             throw new RuntimeException("Impossible de supprimer : ville utilisée dans " + segments.size() + " segment(s)");
-
         villeRepository.deleteById(id);
     }
 
@@ -86,11 +86,22 @@ public class AdminService {
         segment.setDateDepart(date);
         segment.setHeureDepart(heureDepart);
         segment.setHeureArrivee(heureArrivee);
-        return segmentRepository.save(segment);
+
+        // Créer un itinéraire direct pour que le segment soit trouvable par les voyageurs
+        Itineraire itineraire = new Itineraire();
+        itineraire.getSegments().add(segment);
+        itineraireRepository.save(itineraire);
+
+        return segment;
     }
 
     public List<SegmentTrajet> getTousLesSegments() {
         return segmentRepository.findAll();
+    }
+
+    // Nouveau : segments filtrés par date (beaucoup plus rapide)
+    public List<SegmentTrajet> getSegmentsParDate(LocalDate date) {
+        return segmentRepository.findByDateDepart(date);
     }
 
     public void supprimerSegment(Long id) {
@@ -112,10 +123,8 @@ public class AdminService {
     public Voyageur modifierVoyageur(Long id, String nom, String email) {
         Voyageur voyageur = voyageurRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voyageur introuvable : " + id));
-        if (nom != null && !nom.isBlank())
-            voyageur.setNom(nom);
-        if (email != null && !email.isBlank())
-            voyageur.setEmail(email);
+        if (nom != null && !nom.isBlank()) voyageur.setNom(nom);
+        if (email != null && !email.isBlank()) voyageur.setEmail(email);
         return voyageurRepository.save(voyageur);
     }
 

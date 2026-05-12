@@ -24,9 +24,12 @@ public class AgentControle {
     @Column(unique = true, nullable = false)
     private String login;
 
-    /** Mot de passe hashé (BCrypt) — jamais en clair */
     @Column(nullable = false)
     private String motDePasse;
+
+    // AGENT ou ADMIN
+    @Column(nullable = false)
+    private String role = "AGENT";
 
     @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens = new ArrayList<>();
@@ -35,6 +38,14 @@ public class AgentControle {
         this.nom = nom;
         this.login = login;
         this.motDePasse = motDePasse;
+        this.role = "AGENT";
+    }
+
+    public AgentControle(String nom, String login, String motDePasse, String role) {
+        this.nom = nom;
+        this.login = login;
+        this.motDePasse = motDePasse;
+        this.role = role;
     }
 
     public boolean aTokenActif() {
