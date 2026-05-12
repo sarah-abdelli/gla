@@ -74,13 +74,7 @@ public class ValidationService {
             }
         }
 
-        // 7. Marquer le billet UTILISÉ seulement si c'est le dernier segment
-        if (numeroTrain == null || numeroTrain.isEmpty() || verifierDernierSegment(billet, numeroTrain)) {
-            billet.marquerUtilise();
-            billetRepository.save(billet);
-        }
-
-        // 8. Enregistrer la validation ACCEPTEE avec le numéro du train
+        // 7. Enregistrer d'abord la validation ACCEPTEE avec le numéro du train
         Validation validation = new Validation();
         validation.setDateHeure(LocalDateTime.now());
         validation.setResultat(ResultatValidation.ACCEPTEE);
@@ -88,10 +82,32 @@ public class ValidationService {
         validation.setAgent(agent);
         validation.setNumeroTrain(numeroTrain);
         try {
-            return validationRepository.save(validation);
+            validation = validationRepository.save(validation);
         } catch (Exception e) {
-            return validation;
+            // On continue même si la sauvegarde échoue
         }
+
+        // 8. Marquer le billet UTILISÉ seulement si TOUS les segments ont été validés
+        //    (on compte les validations ACCEPTEE en base + celle qu'on vient d'enregistrer)
+        if (numeroTrain == null || numeroTrain.isEmpty()) {
+            // Pas de numéro de train fourni : on marque directement UTILISÉ
+            billet.marquerUtilise();
+            billetRepository.save(billet);
+        } else {
+            long nbSegments = billet.getItineraire().getSegments().size();
+            long nbValidationsAcceptees = validationRepository
+                    .findByBilletUuid(uuid)
+                    .stream()
+                    .filter(v -> v.getResultat() == ResultatValidation.ACCEPTEE)
+                    .count();
+
+            if (nbValidationsAcceptees >= nbSegments) {
+                billet.marquerUtilise();
+                billetRepository.save(billet);
+            }
+        }
+
+        return validation;
     }
 
     private boolean verifierSegment(Billet billet, String numeroTrain) {
@@ -104,12 +120,6 @@ public class ValidationService {
         return billet.getItineraire().getSegments().stream()
                 .filter(s -> s.getTrain().getNumero().equals(numeroTrain))
                 .anyMatch(s -> s.getDateDepart().equals(date) && s.estDansLaBonnePlage(heure));
-    }
-
-    private boolean verifierDernierSegment(Billet billet, String numeroTrain) {
-        List<SegmentTrajet> segments = billet.getItineraire().getSegments();
-        if (segments == null || segments.isEmpty()) return false;
-        return segments.get(segments.size() - 1).getTrain().getNumero().equals(numeroTrain);
     }
 
     private Validation enregistrerRefus(Billet billet, AgentControle agent, String motif) {

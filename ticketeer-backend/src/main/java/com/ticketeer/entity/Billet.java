@@ -61,6 +61,7 @@ public class Billet {
     public void marquerUtilise() { this.etat = EtatBillet.UTILISE; }
     public void invalider() { this.etat = EtatBillet.INVALIDE; }
 
+    @JsonIgnore
     public Validation getDerniereValidation() {
         return validations.isEmpty() ? null : validations.get(0);
     }
