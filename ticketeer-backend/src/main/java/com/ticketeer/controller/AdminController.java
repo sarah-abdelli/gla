@@ -1,5 +1,6 @@
 package com.ticketeer.controller;
 
+import com.ticketeer.entity.ItineraireRequest;
 import com.ticketeer.entity.*;
 import com.ticketeer.service.AdminService;
 
@@ -53,7 +54,9 @@ public class AdminController {
 
     @GetMapping("/trains/disponibles")
     public ResponseEntity<List<Train>> getTrainsDisponibles(@RequestParam String date) {
-        return ResponseEntity.ok(adminService.getTrainsDisponibles(LocalDate.parse(date)));
+        return ResponseEntity.ok(
+                adminService.getTrainsDisponibles(LocalDate.parse(date))
+        );
     }
 
     @PostMapping("/segments")
@@ -70,12 +73,10 @@ public class AdminController {
         );
     }
 
-    // Avec filtre optionnel par date pour éviter de tout charger
     @GetMapping("/segments")
-    public ResponseEntity<List<SegmentTrajet>> getSegments(
-            @RequestParam(required = false) String date) {
+    public ResponseEntity<List<SegmentTrajet>> getSegments(@RequestParam(required = false) String date) {
         if (date != null && !date.isEmpty()) {
-            return ResponseEntity.ok(adminService.getSegmentsParDate(LocalDate.parse(date)));
+            return ResponseEntity.ok(adminService.getSegmentsByDate(LocalDate.parse(date)));
         }
         return ResponseEntity.ok(adminService.getTousLesSegments());
     }
@@ -83,6 +84,22 @@ public class AdminController {
     @DeleteMapping("/segments/{id}")
     public ResponseEntity<Void> deleteSegment(@PathVariable Long id) {
         adminService.supprimerSegment(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/itineraires")
+    public ResponseEntity<Itineraire> addItineraire(@RequestBody ItineraireRequest request) {
+        return ResponseEntity.ok(adminService.creerItineraire(request));
+    }
+
+    @GetMapping("/itineraires")
+    public ResponseEntity<List<Itineraire>> getItineraires() {
+        return ResponseEntity.ok(adminService.getTousLesItineraires());
+    }
+
+    @DeleteMapping("/itineraires/{id}")
+    public ResponseEntity<Void> deleteItineraire(@PathVariable Long id) {
+        adminService.supprimerItineraire(id);
         return ResponseEntity.noContent().build();
     }
 

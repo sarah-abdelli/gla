@@ -19,14 +19,12 @@ function Segments() {
     heureArrivee: "",
   });
 
-  // Au démarrage on charge seulement les villes (léger)
   useEffect(() => {
     axios.get("http://localhost:8080/api/admin/villes")
       .then(res => setVilles(res.data))
       .catch(() => setError("Impossible de charger les villes"));
   }, []);
 
-  // Charger les segments uniquement quand on choisit une date de filtre
   const chargerSegmentsParDate = async (date) => {
     if (!date) { setSegments([]); return; }
     setLoadingSegments(true);
@@ -61,16 +59,21 @@ function Segments() {
     }
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const ajouterSegment = async () => {
+  const ajouterSegment = async (e) => {
+    e.preventDefault();
     setError("");
     const { villeDepart, villeArrivee, numeroTrain, date, heureDepart, heureArrivee } = form;
     if (!villeDepart || !villeArrivee || !numeroTrain || !date || !heureDepart || !heureArrivee) {
-      setError("Tous les champs sont obligatoires"); return;
+      setError("Tous les champs sont obligatoires");
+      return;
     }
     if (villeDepart === villeArrivee) {
-      setError("La ville de départ et d'arrivée doivent être différentes"); return;
+      setError("La ville de départ et d'arrivée doivent être différentes");
+      return;
     }
     try {
       await axios.post("http://localhost:8080/api/admin/segments", form);
@@ -115,7 +118,7 @@ function Segments() {
           </div>
         </div>
 
-        <form>
+        <form onSubmit={ajouterSegment}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -161,7 +164,7 @@ function Segments() {
             </div>
           </div>
 
-          <button type="button" onClick={ajouterSegment} style={{ width: "100%", padding: "14px", border: "none", borderRadius: "14px", background: "var(--accent-gradient)", color: "white", fontFamily: "Outfit, sans-serif", fontSize: "1rem", fontWeight: "700", cursor: "pointer", marginBottom: "20px", boxShadow: "0 8px 24px rgba(79, 124, 255, 0.35)" }}>
+          <button type="submit" style={{ width: "100%", padding: "14px", border: "none", borderRadius: "14px", background: "var(--accent-gradient)", color: "white", fontFamily: "Outfit, sans-serif", fontSize: "1rem", fontWeight: "700", cursor: "pointer", marginBottom: "20px", boxShadow: "0 8px 24px rgba(79, 124, 255, 0.35)" }}>
             ＋ Ajouter le segment
           </button>
         </form>

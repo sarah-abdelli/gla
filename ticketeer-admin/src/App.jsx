@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard";
 import Villes from "./Villes";
 import Trains from "./Trains";
 import Segments from "./Segments";
+import Itineraires from "./Itineraires";
 import Historique from "./Historique";
 import Clients from "./Clients";
 import "./App.css";
@@ -24,18 +25,13 @@ function App() {
 
   const renderPage = () => {
     switch (page) {
-      case "villes":
-        return <Villes />;
-      case "trains":
-        return <Trains />;
-      case "segments":
-        return <Segments />;
-      case "historique":
-        return <Historique />;
-      case "clients":
-        return <Clients />;
-      default:
-        return <Dashboard />;
+      case "villes":      return <Villes />;
+      case "trains":      return <Trains />;
+      case "segments":    return <Segments />;
+      case "itineraires": return <Itineraires />;
+      case "historique":  return <Historique />;
+      case "clients":     return <Clients />;
+      default:            return <Dashboard />;
     }
   };
 
@@ -50,47 +46,13 @@ function App() {
         </div>
 
         <nav>
-          <button
-            className={page === "dashboard" ? "active" : ""}
-            onClick={() => setPage("dashboard")}
-          >
-            📊 Dashboard
-          </button>
-
-          <button
-            className={page === "villes" ? "active" : ""}
-            onClick={() => setPage("villes")}
-          >
-            🏙️ Villes
-          </button>
-
-          <button
-            className={page === "trains" ? "active" : ""}
-            onClick={() => setPage("trains")}
-          >
-            🚄 Trains
-          </button>
-
-          <button
-            className={page === "segments" ? "active" : ""}
-            onClick={() => setPage("segments")}
-          >
-            🛤️ Segments
-          </button>
-
-          <button
-            className={page === "historique" ? "active" : ""}
-            onClick={() => setPage("historique")}
-          >
-            📋 Historique
-          </button>
-
-          <button
-            className={page === "clients" ? "active" : ""}
-            onClick={() => setPage("clients")}
-          >
-            👤 Clients
-          </button>
+          <button className={page === "dashboard"   ? "active" : ""} onClick={() => setPage("dashboard")}>📊 Dashboard</button>
+          <button className={page === "villes"      ? "active" : ""} onClick={() => setPage("villes")}>🏙️ Villes</button>
+          <button className={page === "trains"      ? "active" : ""} onClick={() => setPage("trains")}>🚄 Trains</button>
+          <button className={page === "segments"    ? "active" : ""} onClick={() => setPage("segments")}>🛤️ Segments</button>
+          <button className={page === "itineraires" ? "active" : ""} onClick={() => setPage("itineraires")}>🗺️ Itinéraires</button>
+          <button className={page === "historique"  ? "active" : ""} onClick={() => setPage("historique")}>📋 Historique</button>
+          <button className={page === "clients"     ? "active" : ""} onClick={() => setPage("clients")}>👤 Clients</button>
         </nav>
 
         <div className="sidebar-logout">
@@ -101,7 +63,6 @@ function App() {
       <main className="main-content">
         <h1 className="page-title">Admin Ticketeer 🎟️</h1>
         <p className="page-subtitle">Panneau d'administration</p>
-
         {renderPage()}
       </main>
     </div>

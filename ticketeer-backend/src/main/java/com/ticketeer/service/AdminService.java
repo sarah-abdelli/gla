@@ -1,21 +1,21 @@
 package com.ticketeer.service;
 
 import com.ticketeer.entity.*;
-import com.ticketeer.repository.ItineraireRepository;
 import com.ticketeer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AdminService {
 
     @Autowired private VilleRepository villeRepository;
-    @Autowired private ItineraireRepository itineraireRepository;
     @Autowired private TrainRepository trainRepository;
     @Autowired private SegmentTrajetRepository segmentRepository;
+    @Autowired private ItineraireRepository itineraireRepository;
     @Autowired private ValidationRepository validationRepository;
     @Autowired private VoyageurRepository voyageurRepository;
 
@@ -86,21 +86,14 @@ public class AdminService {
         segment.setDateDepart(date);
         segment.setHeureDepart(heureDepart);
         segment.setHeureArrivee(heureArrivee);
-
-        // Créer un itinéraire direct pour que le segment soit trouvable par les voyageurs
-        Itineraire itineraire = new Itineraire();
-        itineraire.getSegments().add(segment);
-        itineraireRepository.save(itineraire);
-
-        return segment;
+        return segmentRepository.save(segment);
     }
 
     public List<SegmentTrajet> getTousLesSegments() {
         return segmentRepository.findAll();
     }
 
-    // Nouveau : segments filtrés par date (beaucoup plus rapide)
-    public List<SegmentTrajet> getSegmentsParDate(LocalDate date) {
+    public List<SegmentTrajet> getSegmentsByDate(LocalDate date) {
         return segmentRepository.findByDateDepart(date);
     }
 
@@ -108,6 +101,62 @@ public class AdminService {
         if (!segmentRepository.existsById(id))
             throw new RuntimeException("Segment introuvable : " + id);
         segmentRepository.deleteById(id);
+    }
+
+    public Itineraire creerItineraire(ItineraireRequest request) {
+        if (request.getSegments() == null || request.getSegments().isEmpty())
+            throw new RuntimeException("Un itinéraire doit avoir au moins un segment");
+
+        List<SegmentTrajet> segments = new ArrayList<>();
+        for (ItineraireRequest.SegmentRequest sr : request.getSegments()) {
+            if (sr.estExistant()) {
+                SegmentTrajet seg = segmentRepository.findById(sr.getSegmentId())
+                        .orElseThrow(() -> new RuntimeException("Segment introuvable : " + sr.getSegmentId()));
+                segments.add(seg);
+            } else {
+                SegmentTrajet seg = ajouterSegment(
+                        sr.getVilleDepart(),
+                        sr.getVilleArrivee(),
+                        sr.getNumeroTrain(),
+                        sr.getDate(),
+                        sr.getHeureDepart(),
+                        sr.getHeureArrivee()
+                );
+                segments.add(seg);
+            }
+        }
+
+        for (int i = 0; i < segments.size() - 1; i++) {
+            SegmentTrajet current = segments.get(i);
+            SegmentTrajet next    = segments.get(i + 1);
+
+            if (!current.getVilleArrivee().getId().equals(next.getVilleDepart().getId()))
+                throw new RuntimeException(
+                        "Incohérence : ville arrivée segment " + (i + 1) +
+                                " (" + current.getVilleArrivee().getNom() + ") " +
+                                "différente de ville départ segment " + (i + 2) +
+                                " (" + next.getVilleDepart().getNom() + ")"
+                );
+
+            if (!next.getHeureDepart().isAfter(current.getHeureArrivee()))
+                throw new RuntimeException(
+                        "Segment " + (i + 2) + " : heure de départ doit être après l'arrivée du segment précédent"
+                );
+        }
+
+        Itineraire itineraire = new Itineraire();
+        itineraire.getSegments().addAll(segments);
+        return itineraireRepository.save(itineraire);
+    }
+
+    public List<Itineraire> getTousLesItineraires() {
+        return itineraireRepository.findAll();
+    }
+
+    public void supprimerItineraire(Long id) {
+        if (!itineraireRepository.existsById(id))
+            throw new RuntimeException("Itinéraire introuvable : " + id);
+        itineraireRepository.deleteById(id);
     }
 
     public List<Voyageur> getTousLesVoyageurs() {
