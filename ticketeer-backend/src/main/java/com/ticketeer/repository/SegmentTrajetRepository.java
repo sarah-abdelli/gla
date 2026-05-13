@@ -20,4 +20,7 @@ public interface SegmentTrajetRepository extends JpaRepository<SegmentTrajet, Lo
 
     @Query("SELECT DISTINCT s.train.id FROM SegmentTrajet s WHERE s.dateDepart = :date")
     List<Long> findTrainIdsUtilisesParDate(@Param("date") LocalDate date);
+
+    // Nouveau : récupérer uniquement les segments d'une date précise
+    List<SegmentTrajet> findByDateDepart(LocalDate dateDepart);
 }

@@ -19,7 +19,6 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-
     @PostMapping("/villes")
     public ResponseEntity<Ville> addVille(@RequestBody Map<String, String> body) {
         return ResponseEntity.ok(adminService.ajouterVille(body.get("nom")));
@@ -54,9 +53,7 @@ public class AdminController {
 
     @GetMapping("/trains/disponibles")
     public ResponseEntity<List<Train>> getTrainsDisponibles(@RequestParam String date) {
-        return ResponseEntity.ok(
-                adminService.getTrainsDisponibles(LocalDate.parse(date))
-        );
+        return ResponseEntity.ok(adminService.getTrainsDisponibles(LocalDate.parse(date)));
     }
 
     @PostMapping("/segments")
@@ -73,8 +70,13 @@ public class AdminController {
         );
     }
 
+    // Avec filtre optionnel par date pour éviter de tout charger
     @GetMapping("/segments")
-    public ResponseEntity<List<SegmentTrajet>> getSegments() {
+    public ResponseEntity<List<SegmentTrajet>> getSegments(
+            @RequestParam(required = false) String date) {
+        if (date != null && !date.isEmpty()) {
+            return ResponseEntity.ok(adminService.getSegmentsParDate(LocalDate.parse(date)));
+        }
         return ResponseEntity.ok(adminService.getTousLesSegments());
     }
 
@@ -83,7 +85,6 @@ public class AdminController {
         adminService.supprimerSegment(id);
         return ResponseEntity.noContent().build();
     }
-
 
     @GetMapping("/clients")
     public ResponseEntity<List<Map<String, Object>>> getVoyageurs() {

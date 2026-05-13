@@ -11,16 +11,21 @@ function Login({ onLogin }) {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", {
+      // Endpoint admin séparé — les agents ne peuvent pas se connecter ici
+      const res = await axios.post("http://localhost:8080/api/auth/login/admin", {
         login,
         motDePasse,
       });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("agentNom", res.data.agentNom);
-      onLogin(res.data.agentNom);
+      localStorage.setItem("agentNom", res.data.nom);
+      onLogin(res.data.nom);
+      onLogin(res.data.nom);
     } catch (err) {
-      setError("Login ou mot de passe incorrect");
+      if (err.response?.status === 403) {
+        setError("Accès réservé aux administrateurs");
+      } else {
+        setError("Login ou mot de passe incorrect");
+      }
     }
   };
 
@@ -32,8 +37,7 @@ function Login({ onLogin }) {
             <span>🚆</span>
             Ticketeer
           </div>
-
-          <p className="login-subtitle">Panneau d’administration</p>
+          <p className="login-subtitle">Panneau d'administration</p>
           <div className="login-badge">Système opérationnel</div>
         </div>
 
@@ -45,7 +49,7 @@ function Login({ onLogin }) {
               <label>Identifiant</label>
               <input
                 type="text"
-                placeholder="agent1"
+                placeholder="admin"
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
               />
@@ -55,7 +59,6 @@ function Login({ onLogin }) {
               <div className="form-group-header">
                 <label>Mot de passe</label>
               </div>
-
               <input
                 type="password"
                 placeholder="••••••••"
