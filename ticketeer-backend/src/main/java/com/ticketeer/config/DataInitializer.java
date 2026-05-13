@@ -40,7 +40,6 @@ public class DataInitializer {
             villeRepo.findAll().forEach(v -> V.put(v.getNom(), v));
             System.out.println("✅ 10 villes insérées");
 
-
             for (String n : new String[]{
                     "TGV001", "TGV002", "TGV003", "TGV004", "TGV005",
                     "IC100", "IC200", "IC300", "IC400", "IC500"})
@@ -51,18 +50,17 @@ public class DataInitializer {
             LocalDate today = LocalDate.now();
             List<Itineraire> itineraires = new ArrayList<>();
 
-            // Directs Paris  Lyon
             String[][] directs = {
-                    {"Paris", "Lyon",       "08:00", "10:00", "TGV001"},
-                    {"Paris", "Lyon",       "12:00", "14:00", "TGV002"},
-                    {"Lyon",  "Paris",      "09:00", "11:00", "TGV003"},
-                    {"Lyon",  "Paris",      "15:00", "17:00", "TGV004"},
-                    {"Paris", "Marseille",  "07:00", "10:15", "TGV005"},
-                    {"Marseille", "Paris",  "08:00", "11:15", "IC100"},
-                    {"Paris", "Lille",      "08:00", "09:00", "IC200"},
-                    {"Lille", "Paris",      "10:00", "11:00", "IC300"},
-                    {"Lyon",  "Marseille",  "09:00", "10:35", "IC400"},
-                    {"Marseille", "Lyon",   "11:00", "12:35", "IC500"},
+                    {"Paris",     "Lyon",       "08:00", "10:00", "TGV001"},
+                    {"Paris",     "Lyon",       "12:00", "14:00", "TGV002"},
+                    {"Lyon",      "Paris",      "09:00", "11:00", "TGV003"},
+                    {"Lyon",      "Paris",      "15:00", "17:00", "TGV004"},
+                    {"Paris",     "Marseille",  "07:00", "10:15", "TGV005"},
+                    {"Marseille", "Paris",      "08:00", "11:15", "IC100"},
+                    {"Paris",     "Lille",      "08:00", "09:00", "IC200"},
+                    {"Lille",     "Paris",      "10:00", "11:00", "IC300"},
+                    {"Lyon",      "Marseille",  "09:00", "10:35", "IC400"},
+                    {"Marseille", "Lyon",       "11:00", "12:35", "IC500"},
             };
 
             for (String[] d : directs) {
@@ -113,18 +111,18 @@ public class DataInitializer {
             List<Itineraire> saved = itineraireRepo.saveAll(itineraires);
             System.out.println("✅ " + saved.size() + " itinéraires de test insérés");
 
-
             for (String[] v : new String[][]{
                     {"Alice Dupont",  "alice@test.com",  "pass123"},
                     {"Bob Martin",    "bob@test.com",    "pass123"},
                     {"Clara Petit",   "clara@test.com",  "pass123"},
                     {"David Leroy",   "david@test.com",  "pass123"}})
                 voyageurRepo.save(new Voyageur(v[0], v[1], passwordEncoder.encode(v[2])));
-            System.out.println("✅ 4 voyageurs insérés (BCrypt)");
+            System.out.println("✅ 4 voyageurs insérés ");
 
-            agentRepo.save(new AgentControle("Agent Dupuis",  "agent1", passwordEncoder.encode("agent123")));
-            agentRepo.save(new AgentControle("Agent Bernard", "agent2", passwordEncoder.encode("agent456")));
-            System.out.println("✅ 2 agents insérés (BCrypt)");
+            agentRepo.save(new AgentControle("Agent Dupuis",   "agent1", passwordEncoder.encode("agent123"), "AGENT"));
+            agentRepo.save(new AgentControle("Agent Bernard",  "agent2", passwordEncoder.encode("agent456"), "AGENT"));
+            agentRepo.save(new AgentControle("Administrateur", "admin",  passwordEncoder.encode("admin123"), "ADMIN"));
+            System.out.println("✅ 2 agents + 1 admin insérés ");
 
             Voyageur alice = voyageurRepo.findByEmail("alice@test.com").orElseThrow();
             Voyageur bob   = voyageurRepo.findByEmail("bob@test.com").orElseThrow();
@@ -135,6 +133,7 @@ public class DataInitializer {
             System.out.println("🚀 BDD Ticketeer initialisée !");
             System.out.println("   Voyageur : alice@test.com / pass123");
             System.out.println("   Agent    : agent1 / agent123");
+            System.out.println("   Admin    : admin / admin123");
         };
     }
 }
