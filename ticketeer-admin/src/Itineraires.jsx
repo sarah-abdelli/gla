@@ -34,49 +34,56 @@ const emptySegment = () => ({
   heureDepart: "",
   heureArrivee: "",
   trainsDisponibles: [],
+  segmentsDisponibles: [],
   loadingTrains: false,
+  loadingSegments: false,
 });
 
-// Convertit "HH:MM" en minutes
 const toMin = (hhmm) => {
   if (!hhmm) return null;
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
 };
 
-// Récupère les infos clés d'un segment rempli
-const getInfo = (s, segmentsDB) => {
+const getInfo = (s) => {
   if (s.mode === "existant" && s.segmentId) {
-    const f = segmentsDB.find((x) => x.id === parseInt(s.segmentId));
-    return f ? { villeArrivee: f.villeArrivee?.nom, heureArrivee: f.heureArrivee, numeroTrain: f.train?.numero } : null;
+    const f = s.segmentsDisponibles?.find((x) => x.id === parseInt(s.segmentId));
+    return f ? { villeArrivee: f.villeArrivee?.nom, heureArrivee: f.heureArrivee } : null;
   }
   if (s.mode === "nouveau" && s.villeArrivee && s.heureArrivee)
-    return { villeArrivee: s.villeArrivee, heureArrivee: s.heureArrivee, numeroTrain: s.numeroTrain };
+    return { villeArrivee: s.villeArrivee, heureArrivee: s.heureArrivee };
   return null;
 };
 
 function Itineraires() {
   const [itineraires, setItineraires] = useState([]);
-  const [segmentsDB, setSegmentsDB] = useState([]);
   const [villes, setVilles] = useState([]);
   const [segmentsList, setSegmentsList] = useState([emptySegment()]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loadingItins, setLoadingItins] = useState(false);
 
-  const charger = async () => {
+  // Filtre liste
+  const [dateFiltre, setDateFiltre] = useState("");
+
+  const chargerVilles = async () => {
     try {
-      const [it, seg, vil] = await Promise.all([
-        axios.get(`${API}/itineraires`),
-        axios.get(`${API}/segments`),
-        axios.get(`${API}/villes`),
-      ]);
-      setItineraires(it.data);
-      setSegmentsDB(seg.data);
-      setVilles(vil.data);
-    } catch { setError("Impossible de charger les données"); }
+      const res = await axios.get(`${API}/villes`);
+      setVilles(res.data);
+    } catch { setError("Impossible de charger les villes"); }
   };
 
-  useEffect(() => { charger(); }, []);
+  const chargerItinerairesParDate = async (date) => {
+    if (!date) { setItineraires([]); return; }
+    setLoadingItins(true);
+    try {
+      const res = await axios.get(`${API}/itineraires?date=${date}`);
+      setItineraires(res.data);
+    } catch { setError("Impossible de charger les itinéraires"); }
+    finally { setLoadingItins(false); }
+  };
+
+  useEffect(() => { chargerVilles(); }, []);
 
   const update = (index, field, value) => {
     setSegmentsList((prev) => {
@@ -86,10 +93,18 @@ function Itineraires() {
     });
   };
 
+  // Quand la date change sur un segment  charger les segments et trains dispo
   const handleDateChange = async (index, date) => {
     update(index, "date", date);
     update(index, "numeroTrain", "");
-    if (!date) { update(index, "trainsDisponibles", []); return; }
+    update(index, "segmentId", "");
+    if (!date) {
+      update(index, "trainsDisponibles", []);
+      update(index, "segmentsDisponibles", []);
+      return;
+    }
+
+    // Charger trains dispo
     update(index, "loadingTrains", true);
     try {
       const res = await axios.get(`${API}/trains/disponibles?date=${date}`);
@@ -99,12 +114,36 @@ function Itineraires() {
         return updated;
       });
     } catch { update(index, "loadingTrains", false); }
+
+    // Charger segments dispo pour ce jour
+    update(index, "loadingSegments", true);
+    try {
+      const res = await axios.get(`${API}/segments?date=${date}`);
+      setSegmentsList((prev) => {
+        const updated = [...prev];
+        // Si segment > 0, filtrer par ville départ = ville arrivée précédente
+        let segs = res.data;
+        if (index > 0) {
+          const prevInfo = getInfo(updated[index - 1]);
+          if (prevInfo?.villeArrivee) {
+            const prevArrMin = toMin(prevInfo.heureArrivee);
+            segs = segs.filter((s) => {
+              if (s.villeDepart?.nom !== prevInfo.villeArrivee) return false;
+              const depMin = toMin(s.heureDepart);
+              if (prevArrMin === null || depMin === null) return true;
+              return depMin > prevArrMin + 29;
+            });
+          }
+        }
+        updated[index] = { ...updated[index], segmentsDisponibles: segs, loadingSegments: false };
+        return updated;
+      });
+    } catch { update(index, "loadingSegments", false); }
   };
 
   const ajouterSegment = () => {
-    const prevInfo = getInfo(segmentsList[segmentsList.length - 1], segmentsDB);
+    const prevInfo = getInfo(segmentsList[segmentsList.length - 1]);
     const nouveau = emptySegment();
-    // Pré-remplir ville départ depuis la ville arrivée du segment précédent
     if (prevInfo?.villeArrivee) nouveau.villeDepart = prevInfo.villeArrivee;
     setSegmentsList((prev) => [...prev, nouveau]);
   };
@@ -112,20 +151,6 @@ function Itineraires() {
   const retirerSegment = (index) => {
     if (segmentsList.length === 1) return;
     setSegmentsList((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Segments existants filtrés
-  const segmentsFiltres = (index) => {
-    if (index === 0) return segmentsDB;
-    const prevInfo = getInfo(segmentsList[index - 1], segmentsDB);
-    if (!prevInfo) return segmentsDB;
-    const prevArrMin = toMin(prevInfo.heureArrivee);
-    return segmentsDB.filter((s) => {
-      if (s.villeDepart?.nom !== prevInfo.villeArrivee) return false;
-      const depMin = toMin(s.heureDepart);
-      if (prevArrMin === null || depMin === null) return true;
-      return depMin > prevArrMin;
-    });
   };
 
   const handleSubmit = async (e) => {
@@ -142,7 +167,7 @@ function Itineraires() {
       await axios.post(`${API}/itineraires`, payload);
       setSuccess("Itinéraire créé !");
       setSegmentsList([emptySegment()]);
-      charger();
+      if (dateFiltre) chargerItinerairesParDate(dateFiltre);
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de la création");
     }
@@ -151,7 +176,7 @@ function Itineraires() {
   const supprimerItineraire = async (id) => {
     try {
       await axios.delete(`${API}/itineraires/${id}`);
-      charger();
+      if (dateFiltre) chargerItinerairesParDate(dateFiltre);
     } catch { setError("Impossible de supprimer"); }
   };
 
@@ -166,15 +191,14 @@ function Itineraires() {
           </div>
         </div>
 
+        {/* Formulaire */}
         <form onSubmit={handleSubmit}>
           {segmentsList.map((seg, index) => {
-            const filtres = segmentsFiltres(index);
             const isLocked = index > 0 && seg.villeDepart;
 
             return (
               <div key={index} style={{ background: "rgba(15,23,42,0.6)", border: "1px solid var(--bg-card-border)", borderRadius: "16px", padding: "20px", marginBottom: "12px" }}>
 
-                {/* Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <span style={{ color: "var(--accent-blue)", fontWeight: "600", fontSize: "0.9rem" }}>
                     Segment {index + 1}
@@ -196,21 +220,28 @@ function Itineraires() {
                   </div>
                 </div>
 
-                {/* Mode existant */}
+                {/* Mode existant  */}
                 {seg.mode === "existant" && (
-                  <div>
-                    <label style={labelStyle}>
-                      Segment existant
-                      {index > 0 && <span style={{ color: "var(--accent-blue)", marginLeft: "6px" }}>({filtres.length} compatibles)</span>}
-                    </label>
-                    <select value={seg.segmentId} onChange={(e) => update(index, "segmentId", e.target.value)} style={{ ...inputStyle, cursor: "pointer" }} required>
-                      <option value="">Sélectionner...</option>
-                      {filtres.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.villeDepart?.nom} → {s.villeArrivee?.nom} | {s.train?.numero} | {s.dateDepart} {s.heureDepart}–{s.heureArrivee}
-                        </option>
-                      ))}
-                    </select>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                    <div>
+                      <label style={labelStyle}>Date du segment</label>
+                      <input type="date" value={seg.date} onChange={(e) => handleDateChange(index, e.target.value)} style={inputStyle} required />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>
+                        Segment existant{" "}
+                        {seg.date && <span style={{ color: "var(--accent-blue)" }}>({seg.loadingSegments ? "..." : `${seg.segmentsDisponibles.length} compatibles`})</span>}
+                      </label>
+                      <select value={seg.segmentId} onChange={(e) => update(index, "segmentId", e.target.value)}
+                        style={{ ...inputStyle, cursor: "pointer" }} disabled={!seg.date || seg.loadingSegments} required>
+                        <option value="">{!seg.date ? "Choisir une date d'abord" : seg.loadingSegments ? "Chargement..." : seg.segmentsDisponibles.length === 0 ? "Aucun segment disponible" : "Sélectionner..."}</option>
+                        {seg.segmentsDisponibles.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.villeDepart?.nom} → {s.villeArrivee?.nom} | {s.train?.numero} | {s.heureDepart}–{s.heureArrivee}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
 
@@ -274,40 +305,52 @@ function Itineraires() {
           </button>
         </form>
 
-        {/* Liste */}
-        <div style={{ marginTop: "32px" }}>
-          <h3 style={{ color: "var(--text-primary)", marginBottom: "16px", fontSize: "1rem" }}>
-            Itinéraires existants ({itineraires.length})
-          </h3>
-          <div className="city-list">
-            {itineraires.length === 0 ? (
-              <div className="city-card" style={{ justifyContent: "center" }}>
-                <span style={{ color: "var(--text-muted)" }}>Aucun itinéraire</span>
-              </div>
-            ) : (
-              itineraires.map((it) => (
-                <div className="city-card" key={it.id}>
-                  <div className="city-left" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <span className="city-mini-icon">🗺️</span>
-                      <strong style={{ color: "var(--text-primary)" }}>{it.villeDepart?.nom} → {it.villeArrivee?.nom}</strong>
-                      <span className="badge" style={{ background: it.segments?.length === 1 ? "rgba(79,124,255,0.1)" : "rgba(124,92,252,0.1)", color: it.segments?.length === 1 ? "var(--accent-blue)" : "var(--accent-purple)", border: `1px solid ${it.segments?.length === 1 ? "rgba(79,124,255,0.3)" : "rgba(124,92,252,0.3)"}` }}>
-                        {it.segments?.length === 1 ? "Direct" : `${it.segments?.length} segments`}
-                      </span>
-                    </div>
-                    <div style={{ paddingLeft: "54px", display: "flex", flexDirection: "column", gap: "2px" }}>
-                      {it.segments?.map((s, i) => (
-                        <span key={i} style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
-                          {i + 1}. {s.villeDepart?.nom} → {s.villeArrivee?.nom} | 🚄 {s.train?.numero} | {s.heureDepart} → {s.heureArrivee}
-                        </span>
-                      ))}
-                    </div>
+        {/* Filtre liste */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "32px", marginBottom: "16px" }}>
+          <h3 style={{ color: "var(--text-primary)", fontSize: "1rem", margin: 0 }}>Itinéraires du</h3>
+          <input type="date" value={dateFiltre} onChange={(e) => { setDateFiltre(e.target.value); chargerItinerairesParDate(e.target.value); }}
+            style={{ ...inputStyle, width: "auto" }} />
+          {dateFiltre && !loadingItins && (
+            <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{itineraires.length} itinéraire(s)</span>
+          )}
+        </div>
+
+        <div className="city-list">
+          {!dateFiltre ? (
+            <div className="city-card" style={{ justifyContent: "center" }}>
+              <span style={{ color: "var(--text-muted)" }}>Choisissez une date pour afficher les itinéraires</span>
+            </div>
+          ) : loadingItins ? (
+            <div className="city-card" style={{ justifyContent: "center" }}>
+              <span style={{ color: "var(--text-muted)" }}>Chargement...</span>
+            </div>
+          ) : itineraires.length === 0 ? (
+            <div className="city-card" style={{ justifyContent: "center" }}>
+              <span style={{ color: "var(--text-muted)" }}>Aucun itinéraire pour cette date</span>
+            </div>
+          ) : (
+            itineraires.map((it) => (
+              <div className="city-card" key={it.id}>
+                <div className="city-left" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <span className="city-mini-icon">🗺️</span>
+                    <strong style={{ color: "var(--text-primary)" }}>{it.villeDepart?.nom} → {it.villeArrivee?.nom}</strong>
+                    <span className="badge" style={{ background: it.segments?.length === 1 ? "rgba(79,124,255,0.1)" : "rgba(124,92,252,0.1)", color: it.segments?.length === 1 ? "var(--accent-blue)" : "var(--accent-purple)", border: `1px solid ${it.segments?.length === 1 ? "rgba(79,124,255,0.3)" : "rgba(124,92,252,0.3)"}` }}>
+                      {it.segments?.length === 1 ? "Direct" : `${it.segments?.length} segments`}
+                    </span>
                   </div>
-                  <button className="delete-btn" onClick={() => supprimerItineraire(it.id)}>🗑️</button>
+                  <div style={{ paddingLeft: "54px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                    {it.segments?.map((s, i) => (
+                      <span key={i} style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
+                        {i + 1}. {s.villeDepart?.nom} → {s.villeArrivee?.nom} | 🚄 {s.train?.numero} | {s.heureDepart} → {s.heureArrivee}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              ))
-            )}
-          </div>
+                <button className="delete-btn" onClick={() => supprimerItineraire(it.id)}>🗑️</button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>

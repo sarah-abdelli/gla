@@ -54,9 +54,7 @@ public class AdminController {
 
     @GetMapping("/trains/disponibles")
     public ResponseEntity<List<Train>> getTrainsDisponibles(@RequestParam String date) {
-        return ResponseEntity.ok(
-                adminService.getTrainsDisponibles(LocalDate.parse(date))
-        );
+        return ResponseEntity.ok(adminService.getTrainsDisponibles(LocalDate.parse(date)));
     }
 
 
@@ -75,7 +73,10 @@ public class AdminController {
     }
 
     @GetMapping("/segments")
-    public ResponseEntity<List<SegmentTrajet>> getSegments() {
+    public ResponseEntity<List<SegmentTrajet>> getSegments(
+            @RequestParam(required = false) String date) {
+        if (date != null)
+            return ResponseEntity.ok(adminService.getSegmentsParDate(LocalDate.parse(date)));
         return ResponseEntity.ok(adminService.getTousLesSegments());
     }
 
@@ -91,7 +92,10 @@ public class AdminController {
     }
 
     @GetMapping("/itineraires")
-    public ResponseEntity<List<Itineraire>> getItineraires() {
+    public ResponseEntity<List<Itineraire>> getItineraires(
+            @RequestParam(required = false) String date) {
+        if (date != null)
+            return ResponseEntity.ok(adminService.getItinerairesParDate(LocalDate.parse(date)));
         return ResponseEntity.ok(adminService.getTousLesItineraires());
     }
 
@@ -134,7 +138,6 @@ public class AdminController {
         adminService.supprimerVoyageur(id);
         return ResponseEntity.noContent().build();
     }
-
 
     @GetMapping("/tracabilite/{uuid}")
     public ResponseEntity<List<Validation>> tracabilite(@PathVariable String uuid) {

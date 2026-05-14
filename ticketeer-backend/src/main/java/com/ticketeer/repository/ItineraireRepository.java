@@ -25,4 +25,7 @@ public interface ItineraireRepository extends JpaRepository<Itineraire, Long> {
     List<Itineraire> findCorrespondances(@Param("depart") String depart,
                                          @Param("arrivee") String arrivee,
                                          @Param("date") LocalDate date);
+
+    @Query("SELECT DISTINCT i FROM Itineraire i JOIN i.segments s WHERE s.dateDepart = :date")
+    List<Itineraire> findBySegmentsDateDepart(@Param("date") LocalDate date);
 }

@@ -93,6 +93,10 @@ public class AdminService {
         return segmentRepository.findAll();
     }
 
+    public List<SegmentTrajet> getSegmentsParDate(LocalDate date) {
+        return segmentRepository.findByDateDepart(date);
+    }
+
     public void supprimerSegment(Long id) {
         if (!segmentRepository.existsById(id))
             throw new RuntimeException("Segment introuvable : " + id);
@@ -103,7 +107,6 @@ public class AdminService {
         if (request.getSegments() == null || request.getSegments().isEmpty())
             throw new RuntimeException("Un itinéraire doit avoir au moins un segment");
 
-        //  Résoudre chaque segment
         List<SegmentTrajet> segments = new ArrayList<>();
         for (ItineraireRequest.SegmentRequest sr : request.getSegments()) {
             if (sr.estExistant()) {
@@ -111,7 +114,6 @@ public class AdminService {
                         .orElseThrow(() -> new RuntimeException("Segment introuvable : " + sr.getSegmentId()));
                 segments.add(seg);
             } else {
-                // Créer un nouveau segment
                 SegmentTrajet seg = ajouterSegment(
                         sr.getVilleDepart(),
                         sr.getVilleArrivee(),
@@ -124,12 +126,11 @@ public class AdminService {
             }
         }
 
-        //  Valider la cohérence entre segments consécutifs
+        // Valider cohérence entre segments consécutifs
         for (int i = 0; i < segments.size() - 1; i++) {
             SegmentTrajet current = segments.get(i);
             SegmentTrajet next    = segments.get(i + 1);
 
-            // Ville arrivée seg i = ville départ seg i+1
             if (!current.getVilleArrivee().getId().equals(next.getVilleDepart().getId()))
                 throw new RuntimeException(
                         "Incohérence : ville arrivée segment " + (i + 1) +
@@ -138,14 +139,12 @@ public class AdminService {
                                 " (" + next.getVilleDepart().getNom() + ")"
                 );
 
-            // Heure départ seg i+1 doit être après heure arrivée seg i
             if (!next.getHeureDepart().isAfter(current.getHeureArrivee()))
                 throw new RuntimeException(
                         "Segment " + (i + 2) + " : heure de départ doit être après l'arrivée du segment précédent"
                 );
         }
 
-        // 3. Créer et sauvegarder l'itinéraire
         Itineraire itineraire = new Itineraire();
         itineraire.getSegments().addAll(segments);
         return itineraireRepository.save(itineraire);
@@ -153,6 +152,10 @@ public class AdminService {
 
     public List<Itineraire> getTousLesItineraires() {
         return itineraireRepository.findAll();
+    }
+
+    public List<Itineraire> getItinerairesParDate(LocalDate date) {
+        return itineraireRepository.findBySegmentsDateDepart(date);
     }
 
     public void supprimerItineraire(Long id) {
