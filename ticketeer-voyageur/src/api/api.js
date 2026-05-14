@@ -19,4 +19,10 @@ export const getMesBillets = (voyageurId) =>
 export const loginVoyageur = (email, motDePasse) =>
     api.post('/auth/login/voyageur', { email, motDePasse })
 
+export const getVilles = () =>
+    api.get('/admin/villes')
+
+export const getTrains = () =>
+    api.get('/admin/trains')
+
 export default api

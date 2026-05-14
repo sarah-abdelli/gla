@@ -1,8 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { rechercherItineraires } from '../api/api'
-
-const VILLES = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Strasbourg', 'Nantes', 'Toulouse', 'Nice', 'Montpellier']
+import { rechercherItineraires, getVilles } from '../api/api'
 
 function getToday() {
     return new Date().toISOString().split('T')[0]
@@ -64,7 +62,17 @@ function Recherche() {
     const [loading, setLoading]   = useState(false)
     const [erreur, setErreur]     = useState('')
     const [rechercheFaite, setRechercheFaite] = useState(false)
+    const [villes, setVilles]     = useState([])
     const navigate = useNavigate()
+
+    useEffect(() => {
+        getVilles()
+            .then(res => {
+                const noms = res.data.map(v => v.nom).sort()
+                setVilles(noms)
+            })
+            .catch(() => setVilles(['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Strasbourg', 'Nantes', 'Toulouse', 'Nice', 'Montpellier']))
+    }, [])
 
     const rechercher = async (e) => {
         e.preventDefault()
@@ -98,11 +106,9 @@ function Recherche() {
                 <p className="text-gray-500 text-sm">Sélectionnez votre départ, votre arrivée et la date souhaitée</p>
             </div>
 
-            {/* Search form */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
                 <form onSubmit={rechercher}>
                     <div className="grid md:grid-cols-4 gap-4 items-end">
-                        {/* Départ */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -111,11 +117,10 @@ function Recherche() {
                             <select value={depart} onChange={e => setDepart(e.target.value)}
                                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-gray-800 font-medium bg-gray-50 transition-colors">
                                 <option value="">-- Choisir --</option>
-                                {VILLES.map(v => <option key={v} value={v}>{v}</option>)}
+                                {villes.map(v => <option key={v} value={v}>{v}</option>)}
                             </select>
                         </div>
 
-                        {/* Arrivée */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#1d4ed8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -124,11 +129,10 @@ function Recherche() {
                             <select value={arrivee} onChange={e => setArrivee(e.target.value)}
                                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-gray-800 font-medium bg-gray-50 transition-colors">
                                 <option value="">-- Choisir --</option>
-                                {VILLES.map(v => <option key={v} value={v}>{v}</option>)}
+                                {villes.map(v => <option key={v} value={v}>{v}</option>)}
                             </select>
                         </div>
 
-                        {/* Date */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -143,7 +147,6 @@ function Recherche() {
                             />
                         </div>
 
-                        {/* Bouton */}
                         <button type="submit" disabled={loading}
                                 className="bg-blue-700 hover:bg-blue-800 text-white py-3 px-6 rounded-xl font-bold shadow-md transition-all hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2">
                             {loading
@@ -161,7 +164,6 @@ function Recherche() {
                 </form>
             </div>
 
-            {/* Results */}
             {resultats.length > 0 && (
                 <div className="animate-fade-in-up">
                     <div className="flex items-center justify-between mb-4">
@@ -188,7 +190,6 @@ function Recherche() {
                                     <div className={`h-1.5 w-full ${complet ? 'bg-red-300' : isDirect ? 'bg-green-500' : 'bg-orange-400'}`} />
 
                                     <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                                        {/* Route */}
                                         <div className="flex items-center gap-6 flex-1">
                                             <div className="text-center min-w-[90px]">
                                                 <div className="text-3xl font-black text-gray-800">{hDep}</div>
@@ -214,7 +215,6 @@ function Recherche() {
                                             </div>
                                         </div>
 
-                                        {/* Price + places + CTA */}
                                         <div className="flex flex-col items-center md:items-end gap-3 min-w-[160px]">
                                             <div className="text-right">
                                                 <div className="text-3xl font-black text-green-600">{calculerPrix(itin)}</div>
@@ -230,7 +230,6 @@ function Recherche() {
                                         </div>
                                     </div>
 
-                                    {/* Correspondance details */}
                                     {!isDirect && (
                                         <div className="bg-orange-50 px-6 py-3 border-t border-orange-100">
                                             <div className="text-xs font-semibold text-orange-600 mb-1">Détail des correspondances</div>
