@@ -1,0 +1,25 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color colorAccent
+color colorPrimary
+color colorPrimaryDark
+color white
+id action_deconnexion
+id btn_login
+id btn_nouveau_scan
+id btn_scanner
+id et_login
+id et_mot_de_passe
+id layout_result
+id progress_bar
+id tv_agent_nom
+id tv_motif
+id tv_resultat
+id tv_uuid
+layout activity_login
+layout activity_result
+layout activity_scan
+menu menu_scan
+string app_name
+style Theme.TicketeerAgent

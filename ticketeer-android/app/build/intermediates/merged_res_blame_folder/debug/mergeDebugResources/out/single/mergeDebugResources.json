@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.ticketeer.agent.app-debug-32:/layout_activity_login.xml.flat",
+        "source": "com.ticketeer.agent.app-main-34:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.ticketeer.agent.app-debug-32:/layout_activity_scan.xml.flat",
+        "source": "com.ticketeer.agent.app-main-34:/layout/activity_scan.xml"
+    },
+    {
+        "merged": "com.ticketeer.agent.app-debug-32:/layout_activity_result.xml.flat",
+        "source": "com.ticketeer.agent.app-main-34:/layout/activity_result.xml"
+    }
+]
